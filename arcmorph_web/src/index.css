@@ -84,11 +84,6 @@ html[data-bs-theme="dark"] .card-header {
   border-bottom-color: var(--am-border) !important;
 }
 
-html[data-bs-theme="dark"] .sidenav-menu {
-  background-color: #080c14 !important;
-  border-right: 1px solid rgba(0, 242, 254, 0.12) !important;
-}
-
 html[data-bs-theme="dark"] .app-topbar {
   background-color: #080c14 !important;
   border-bottom: 1px solid rgba(0, 242, 254, 0.12) !important;
@@ -101,58 +96,9 @@ html[data-bs-theme="light"] .card {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-html[data-bs-theme="light"] .sidenav-menu {
-  background-color: #ffffff !important;
-  border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
-}
-
 html[data-bs-theme="light"] .app-topbar {
   background-color: #ffffff !important;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-}
-
-/* === NAVIGATION ANIMATION PARITY IN DARK & LIGHT MODES === */
-.side-nav-link {
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  position: relative;
-  border-radius: 8px;
-  margin: 2px 8px;
-}
-
-.side-nav-link:hover {
-  transform: translateX(4px) !important;
-}
-
-html[data-bs-theme="dark"] .side-nav-link:hover {
-  background-color: rgba(0, 242, 254, 0.08) !important;
-  color: #00f2fe !important;
-}
-
-html[data-bs-theme="dark"] .side-nav-link.active {
-  background: linear-gradient(90deg, rgba(0, 242, 254, 0.15) 0%, rgba(59, 130, 246, 0.08) 100%) !important;
-  color: #00f2fe !important;
-  font-weight: 600;
-  box-shadow: inset 3px 0 0 #00f2fe;
-}
-
-html[data-bs-theme="light"] .side-nav-link:hover {
-  background-color: rgba(59, 130, 246, 0.08) !important;
-  color: #2563eb !important;
-}
-
-html[data-bs-theme="light"] .side-nav-link.active {
-  background: linear-gradient(90deg, rgba(59, 130, 246, 0.12) 0%, rgba(37, 99, 235, 0.05) 100%) !important;
-  color: #2563eb !important;
-  font-weight: 600;
-  box-shadow: inset 3px 0 0 #2563eb;
-}
-
-.side-nav-link i, .side-nav-link svg {
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.side-nav-link:hover i, .side-nav-link:hover svg {
-  transform: scale(1.15) !important;
 }
 
 /* Brand Colors & Utilities */

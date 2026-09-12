@@ -67,7 +67,7 @@ const DEFAULT_CONFIG: ExtendedThemeConfig = {
   theme: 'dark',
   menuColor: 'dark',
   topbarColor: 'dark',
-  sidenavSize: 'default',
+  sidenavSize: 'on-hover-active',
   layoutWidth: 'fluid',
   position: 'fixed',
   dir: 'ltr',

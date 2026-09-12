@@ -125,7 +125,7 @@ const NavItem: React.FC<{
           )}
           <span className="menu-text">{item.title}</span>
           {item.badge && (
-            <span className={`badge bg-${item.badge.variant} float-end me-1 fs-10`}>{item.badge.text}</span>
+            <span className={`badge bg-${item.badge.variant} float-end me-1`}>{item.badge.text}</span>
           )}
           <span
             className="menu-arrow"
@@ -173,7 +173,7 @@ const NavItem: React.FC<{
         )}
         <span className="menu-text">{item.title}</span>
         {item.badge && (
-          <span className={`badge bg-${item.badge.variant} float-end fs-10`}>{item.badge.text}</span>
+          <span className={`badge bg-${item.badge.variant} float-end`}>{item.badge.text}</span>
         )}
       </Link>
     </li>
@@ -271,23 +271,25 @@ export const Sidebar: React.FC = () => {
       <SimpleBar className="scrollbar" style={{ maxHeight: 'calc(100% - 70px)' }}>
         {/* User Profile Box */}
         {sidenavUser && (
-          <div className="sidenav-user p-3 border-bottom border-dark" style={{ background: 'rgba(0, 242, 254, 0.03)' }}>
+          <div className="sidenav-user" id="user-profile-settings" style={{ background: 'url(/assets/images/user-bg-pattern.svg)' }}>
             <div className="d-flex justify-content-between align-items-center">
-              <Link to="/profile" className="d-flex align-items-center gap-2 text-decoration-none">
-                <img
-                  src={user?.avatar || "/assets/images/users/naimul_islam.jpg"}
-                  alt="user"
-                  className="rounded-circle avatar-sm border border-cyan"
-                  style={{ width: 38, height: 38, objectFit: 'cover' }}
-                />
-                <div>
-                  <span className="sidenav-user-name fw-bold d-block text-white fs-13">{user?.name || 'Naimul Islam'}</span>
-                  <span className="fs-11 fw-semibold text-cyan">{user?.role || 'SuperAdmin'}</span>
-                </div>
-              </Link>
-              <Link to="/settings" className="text-muted hover-cyan">
-                <i className="ti ti-settings fs-20 align-middle"></i>
-              </Link>
+              <div>
+                <Link className="link-reset" to="/profile">
+                  <img
+                    src={user?.avatar || "/assets/images/users/naimul_islam.jpg"}
+                    alt="user"
+                    className="rounded-circle mb-2 avatar-md"
+                    style={{ objectFit: 'cover' }}
+                  />
+                  <span className="sidenav-user-name fw-bold d-block">{user?.name || 'Naimul Islam'}</span>
+                  <span className="fs-12 fw-semibold text-muted">{user?.role || 'SuperAdmin'}</span>
+                </Link>
+              </div>
+              <div>
+                <Link className="link-reset sidenav-user-set-icon" to="/settings">
+                  <i className="ti ti-settings fs-24 align-middle ms-1"></i>
+                </Link>
+              </div>
             </div>
           </div>
         )}
@@ -312,20 +314,14 @@ export const Sidebar: React.FC = () => {
           ))}
         </ul>
 
-        {/* ArcMorph System Status Card */}
+        {/* Special Menu Card (Authentic Paces Theme) */}
         <div className="p-3 mt-auto">
-          <div className="card text-center mb-0" style={{ background: 'rgba(0, 242, 254, 0.05)', border: '1px solid rgba(0, 242, 254, 0.2)' }}>
+          <div className="card text-center bg-primary text-white mb-0">
             <div className="card-body p-3">
-              <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
-                <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
-                  <i className="ti ti-circle-filled fs-8 me-1 text-success"></i> Engine Online
-                </span>
-              </div>
-              <h6 className="text-light fw-bold mb-1 fs-13">ArcMorph v2.4</h6>
-              <p className="fs-xs text-muted mb-2">Multi-Agent Reverse Engine</p>
-              <Link to="/terminal" className="btn btn-sm w-100 fw-medium" style={{ border: '1px solid #00f2fe', color: '#00f2fe' }}>
-                <i className="ti ti-terminal me-1"></i> Open Terminal
-              </Link>
+              <i className="ti ti-crown fs-28 mb-2 d-block"></i>
+              <h6 className="text-white fw-bold mb-1">ArcMorph Suite</h6>
+              <p className="fs-xs opacity-75 mb-2">Multi-Agent Modernization Studio</p>
+              <Link to="/terminal" className="btn btn-sm btn-light text-primary fw-semibold w-100">Live Terminal</Link>
             </div>
           </div>
         </div>
