@@ -117,7 +117,7 @@ html[data-bs-theme="dark"] .text-body-secondary,
 html[data-bs-theme="dark"] small.text-muted,
 html[data-bs-theme="dark"] span.text-muted,
 html[data-bs-theme="dark"] p.text-muted {
-  color: #94a3b8 !important;
+  color: #cbd5e1 !important;
 }
 
 html[data-bs-theme="light"] .text-muted,
@@ -131,6 +131,90 @@ html[data-bs-theme="light"] p.text-muted {
 /* Responsive Text Overrides to Prevent Invisible Colors */
 .text-slate-900 {
   color: var(--am-text) !important;
+}
+
+/* Universal High-Contrast Overrides for Dark Mode */
+html[data-bs-theme="dark"] .text-dark:not(.btn-info):not(.badge-info):not(.badge-warning):not(.badge-cyan):not(.btn-warning):not(.badge-success) {
+  color: #f8fafc !important;
+}
+
+html[data-bs-theme="dark"] .text-secondary {
+  color: #cbd5e1 !important;
+}
+
+html[data-bs-theme="dark"] .text-light {
+  color: #f8fafc !important;
+}
+
+html[data-bs-theme="dark"] .text-black {
+  color: #ffffff !important;
+}
+
+/* Map dark utility backgrounds & borders to subtle translucent layers in dark mode */
+html[data-bs-theme="dark"] .bg-dark {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: #f8fafc !important;
+}
+
+html[data-bs-theme="dark"] .bg-black-subtle {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+html[data-bs-theme="dark"] .border-dark {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html[data-bs-theme="dark"] .border-secondary {
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+html[data-bs-theme="dark"] .btn-dark {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #f8fafc !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+html[data-bs-theme="dark"] .btn-dark:hover {
+  background-color: rgba(0, 242, 254, 0.16) !important;
+  color: #00f2fe !important;
+  border-color: rgba(0, 242, 254, 0.4) !important;
+}
+
+/* Fix muddy bg-light and btn-light in dark mode */
+html[data-bs-theme="dark"] .bg-light {
+  background-color: rgba(255, 255, 255, 0.07) !important;
+  color: #f1f5f9 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+html[data-bs-theme="dark"] .btn-light {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #f1f5f9 !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+html[data-bs-theme="dark"] .btn-light:hover {
+  background-color: rgba(0, 242, 254, 0.15) !important;
+  color: #00f2fe !important;
+  border-color: rgba(0, 242, 254, 0.3) !important;
+}
+
+/* Tables in dark mode */
+html[data-bs-theme="dark"] .table {
+  --bs-table-color: #cbd5e1 !important;
+  --bs-table-bg: transparent !important;
+  color: #cbd5e1 !important;
+}
+
+html[data-bs-theme="dark"] .table td,
+html[data-bs-theme="dark"] .table th {
+  color: #e2e8f0;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-bs-theme="dark"] .table thead th {
+  color: #f8fafc !important;
+  background-color: rgba(255, 255, 255, 0.03) !important;
 }
 
 html[data-bs-theme="dark"] .card {
@@ -170,31 +254,46 @@ html[data-bs-theme="light"] .app-topbar {
   border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
 }
 
-/* === AUTHENTIC PACES SIDEBAR NAV ANIMATION FLOW === */
+/* === VIVID HIGH-TECH ACTIVE NAVIGATION ANIMATION FLOW === */
+@keyframes nav-glow-pulse {
+  0% {
+    box-shadow: 0 0 14px rgba(0, 242, 254, 0.35), inset 0 0 8px rgba(0, 242, 254, 0.12);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(0, 242, 254, 0.6), inset 0 0 16px rgba(0, 242, 254, 0.25);
+  }
+  100% {
+    box-shadow: 0 0 14px rgba(0, 242, 254, 0.35), inset 0 0 8px rgba(0, 242, 254, 0.12);
+  }
+}
+
 .side-nav .side-nav-item .side-nav-link {
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 50px;
+  border-radius: 12px;
+  position: relative;
 }
 
 html[data-bs-theme="dark"] .side-nav .side-nav-item.active > .side-nav-link {
-  background: linear-gradient(90deg, rgba(0, 242, 254, 0.18) 0%, rgba(59, 130, 246, 0.08) 100%) !important;
+  background: linear-gradient(90deg, rgba(0, 242, 254, 0.32) 0%, rgba(59, 130, 246, 0.16) 100%) !important;
   color: #00f2fe !important;
-  box-shadow: 0 0 16px rgba(0, 242, 254, 0.25);
-  transform: translateX(4px);
-  font-weight: 600;
+  border-left: 4px solid #00f2fe !important;
+  animation: nav-glow-pulse 2.2s infinite ease-in-out;
+  transform: translateX(6px);
+  font-weight: 700;
 }
 
 html[data-bs-theme="dark"] .side-nav .side-nav-item.active > .side-nav-link .menu-icon i {
   color: #00f2fe !important;
-  filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.6));
-  transform: scale(1.15);
+  filter: drop-shadow(0 0 12px rgba(0, 242, 254, 0.9));
+  transform: scale(1.22);
   transition: all 0.25s ease;
 }
 
-html[data-bs-theme="dark"] .side-nav .side-nav-item:hover > .side-nav-link {
-  background-color: rgba(0, 242, 254, 0.08) !important;
+html[data-bs-theme="dark"] .side-nav .side-nav-item:hover > .side-nav-link:not(.active) {
+  background-color: rgba(0, 242, 254, 0.12) !important;
   color: #00f2fe !important;
   transform: translateX(4px);
+  border-left: 2px solid rgba(0, 242, 254, 0.5) !important;
 }
 
 html[data-bs-theme="dark"] .side-nav .side-nav-item:hover > .side-nav-link .menu-icon i {
@@ -204,16 +303,19 @@ html[data-bs-theme="dark"] .side-nav .side-nav-item:hover > .side-nav-link .menu
 }
 
 html[data-bs-theme="light"] .side-nav .side-nav-item.active > .side-nav-link {
-  background-color: rgba(37, 99, 235, 0.12) !important;
-  color: #2563eb !important;
-  transform: translateX(4px);
-  font-weight: 600;
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.18) 0%, rgba(59, 130, 246, 0.08) 100%) !important;
+  color: #1d4ed8 !important;
+  border-left: 4px solid #2563eb !important;
+  box-shadow: 0 0 12px rgba(37, 99, 235, 0.25);
+  transform: translateX(6px);
+  font-weight: 700;
 }
 
-html[data-bs-theme="light"] .side-nav .side-nav-item:hover > .side-nav-link {
-  background-color: rgba(59, 130, 246, 0.08) !important;
+html[data-bs-theme="light"] .side-nav .side-nav-item:hover > .side-nav-link:not(.active) {
+  background-color: rgba(59, 130, 246, 0.1) !important;
   color: #2563eb !important;
   transform: translateX(4px);
+  border-left: 2px solid rgba(37, 99, 235, 0.4) !important;
 }
 
 html[data-bs-theme="light"] .side-nav .side-nav-item:hover > .side-nav-link .menu-icon i {

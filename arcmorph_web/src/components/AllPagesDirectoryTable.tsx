@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Layers, Search, Filter, FileCode, CheckCircle2, ChevronRight, Eye, Code, ArrowRight, Table, ExternalLink, GitFork } from 'lucide-react';
 import { MermaidViewer } from './common/MermaidViewer';
 
@@ -200,33 +200,33 @@ export const AllPagesDirectoryTable: React.FC<AllPagesDirectoryTableProps> = ({
                         <div className="d-flex align-items-center gap-2">
                           <FileCode size={16} className="text-primary flex-shrink-0" />
                           <div>
-                            <span className="fw-bold text-dark font-monospace d-block">{name}</span>
+                            <span className="fw-bold text-body font-monospace d-block">{name}</span>
                             <small className="text-muted font-monospace fs-11">{pth}</small>
                           </div>
                         </div>
                       </td>
                       <td>
-                        <span className="badge bg-secondary-subtle text-secondary font-monospace fs-11">
+                        <span className="badge bg-secondary-subtle text-body border border-secondary-subtle font-monospace fs-11">
                           {getSubsystemName(page)}
                         </span>
                       </td>
                       <td>
                         <div className="d-flex align-items-center gap-1.5 flex-wrap">
-                          <span className="badge bg-light text-dark border fs-10 font-monospace" title="Inputs & TextBoxes">
+                          <span className="badge bg-body-secondary text-body border border-secondary-subtle fs-10 font-monospace" title="Inputs & TextBoxes">
                             {inputsCount} Inputs
                           </span>
-                          <span className="badge bg-light text-dark border fs-10 font-monospace" title="Action Buttons">
+                          <span className="badge bg-body-secondary text-body border border-secondary-subtle fs-10 font-monospace" title="Action Buttons">
                             {buttonsCount} Buttons
                           </span>
                           {gridsCount > 0 && (
-                            <span className="badge bg-info-subtle text-info fs-10 font-monospace" title="DataGrids">
+                            <span className="badge bg-info-subtle text-info border border-info-subtle fs-10 font-monospace" title="DataGrids">
                               {gridsCount} Grids
                             </span>
                           )}
                         </div>
                       </td>
                       <td>
-                        <code className="text-primary fs-11 bg-primary-subtle px-2 py-0.5 rounded">
+                        <code className="text-cyan fs-11 bg-body-secondary border border-secondary-subtle px-2 py-0.5 rounded">
                           {modernRoute}
                         </code>
                       </td>
@@ -252,7 +252,7 @@ export const AllPagesDirectoryTable: React.FC<AllPagesDirectoryTableProps> = ({
       </div>
 
       {/* Pagination Footer */}
-      <div className="card-footer bg-transparent border-top p-3 d-flex align-items-center justify-content-between">
+      <div className="card-footer bg-transparent border-top border-secondary-subtle p-3 d-flex align-items-center justify-content-between">
         <small className="text-muted fs-12 font-monospace">
           Showing {filteredPages.length > 0 ? (currentPage - 1) * pageSize + 1 : 0} to{' '}
           {Math.min(currentPage * pageSize, filteredPages.length)} of {filteredPages.length} pages
@@ -261,7 +261,7 @@ export const AllPagesDirectoryTable: React.FC<AllPagesDirectoryTableProps> = ({
           <button
             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            className="btn btn-sm btn-light border rounded-pill px-3 fs-12"
+            className="btn btn-sm btn-outline-secondary rounded-pill px-3 fs-12"
           >
             ← Previous
           </button>
@@ -271,7 +271,7 @@ export const AllPagesDirectoryTable: React.FC<AllPagesDirectoryTableProps> = ({
           <button
             onClick={() => setCurrentPage(p => Math.min(totalPaginationPages, p + 1))}
             disabled={currentPage === totalPaginationPages}
-            className="btn btn-sm btn-light border rounded-pill px-3 fs-12"
+            className="btn btn-sm btn-outline-secondary rounded-pill px-3 fs-12"
           >
             Next →
           </button>

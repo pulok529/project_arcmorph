@@ -70,8 +70,8 @@ export const MorphHubPage: React.FC = () => {
 
       <div className="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
         <div>
-          <h4 className="fw-bold text-light mb-1">Active Modernization Repositories</h4>
-          <p className="text-muted fs-13 mb-0">Browse, inspect, and analyze ingested legacy systems and target blueprints</p>
+          <h4 className="fw-bold text-body mb-1">Active Modernization Repositories</h4>
+          <p className="text-body-secondary fs-13 mb-0">Browse, inspect, and analyze ingested legacy systems and target blueprints</p>
         </div>
         <div className="d-flex align-items-center gap-2">
           <Link to="/upload" className="btn btn-outline-info rounded-pill px-3 fs-13">
@@ -83,14 +83,14 @@ export const MorphHubPage: React.FC = () => {
       {loading ? (
         <div className="text-center py-5">
           <div className="spinner-border text-info" role="status"></div>
-          <p className="mt-2 text-muted fs-13">Scanning repository catalog...</p>
+          <p className="mt-2 text-body-secondary fs-13">Scanning repository catalog...</p>
         </div>
       ) : projects.length === 0 ? (
-        <div className="card text-center py-5 border-0 shadow-sm" style={{ background: '#111827', border: '1px dashed rgba(255,255,255,0.1)' }}>
+        <div className="card text-center py-5 border border-dashed border-secondary-subtle shadow-sm">
           <div className="card-body">
-            <i className="ti ti-folder-off fs-48 text-muted mb-3 d-block"></i>
-            <h5 className="text-light fw-bold">No Projects Found</h5>
-            <p className="text-muted fs-13 mb-3">Upload a legacy archive (.zip/.rar/.7z) or database backup to begin</p>
+            <i className="ti ti-folder-off fs-48 text-body-secondary mb-3 d-block"></i>
+            <h5 className="text-body fw-bold">No Projects Found</h5>
+            <p className="text-body-secondary fs-13 mb-3">Upload a legacy archive (.zip/.rar/.7z) or database backup to begin</p>
             <Link to="/upload" className="btn btn-primary px-4">
               <i className="ti ti-upload me-1"></i> Upload First Project
             </Link>
@@ -102,20 +102,13 @@ export const MorphHubPage: React.FC = () => {
             const isCompleted = proj.status === 'COMPLETED';
             return (
               <div key={proj.id} className="col-xl-6 col-xxl-4">
-                <div
-                  className="card h-100 border-0 shadow-sm transition-all"
-                  style={{
-                    background: '#111827',
-                    border: '1px solid rgba(0, 242, 254, 0.2)',
-                    borderRadius: '12px'
-                  }}
-                >
-                  <div className="card-header bg-transparent border-bottom border-dark py-3 d-flex align-items-center justify-content-between">
+                <div className="card h-100 border border-secondary-subtle shadow-sm transition-all">
+                  <div className="card-header bg-transparent border-bottom border-secondary-subtle py-3 d-flex align-items-center justify-content-between">
                     <div className="d-flex align-items-center gap-2">
-                      <span className="avatar-xs rounded-circle d-flex align-items-center justify-content-center" style={{ background: 'rgba(0, 242, 254, 0.1)', color: '#00f2fe', width: 32, height: 32 }}>
+                      <span className="avatar-xs rounded-circle d-flex align-items-center justify-content-center" style={{ background: 'rgba(0, 242, 254, 0.12)', color: '#00f2fe', width: 32, height: 32 }}>
                         <i className="ti ti-box fs-16"></i>
                       </span>
-                      <h5 className="card-title text-light mb-0 fs-15 text-truncate" style={{ maxWidth: '220px' }}>
+                      <h5 className="card-title text-body mb-0 fs-15 text-truncate" style={{ maxWidth: '220px' }}>
                         {proj.name}
                       </h5>
                     </div>
@@ -126,16 +119,16 @@ export const MorphHubPage: React.FC = () => {
                   </div>
 
                   <div className="card-body p-3">
-                    <p className="fs-12 text-muted mb-3 line-clamp-2" style={{ minHeight: '36px' }}>
+                    <p className="fs-12 text-body-secondary mb-3 line-clamp-2" style={{ minHeight: '36px' }}>
                       {proj.domain_summary || 'Legacy enterprise monolith ingested for architecture decompilation and clean modern transformation.'}
                     </p>
 
                     {/* Detected Tech Stack Badges */}
                     <div className="mb-3">
-                      <span className="fs-11 text-muted fw-semibold text-uppercase d-block mb-1">Detected Tech Stack:</span>
+                      <span className="fs-11 text-body-secondary fw-semibold text-uppercase d-block mb-1">Detected Tech Stack:</span>
                       <div className="d-flex flex-wrap gap-1">
                         {(proj.tech_stack || ['.NET Framework 4.0', 'ASP.NET WebForms', 'MS SQL 2019', 'Crystal Reports']).map((tech, i) => (
-                          <span key={i} className="badge bg-dark border border-secondary text-info fs-11">
+                          <span key={i} className="badge bg-body-secondary border border-secondary-subtle text-info fs-11">
                             {tech}
                           </span>
                         ))}
@@ -145,32 +138,32 @@ export const MorphHubPage: React.FC = () => {
                     {/* Inventory Metrics */}
                     <div className="row g-2 text-center fs-11 mb-3">
                       <div className="col-4">
-                        <div className="p-2 rounded bg-dark border border-secondary">
-                          <span className="text-muted d-block">Files</span>
-                          <span className="fw-bold text-light">{proj.stats?.total_files || 2165}</span>
+                        <div className="p-2 rounded bg-body-tertiary border border-secondary-subtle">
+                          <span className="text-body-secondary d-block fs-11 fw-semibold">Files</span>
+                          <span className="fw-bold text-body fs-14">{proj.stats?.total_files || 2165}</span>
                         </div>
                       </div>
                       <div className="col-4">
-                        <div className="p-2 rounded bg-dark border border-secondary">
-                          <span className="text-muted d-block">Classes</span>
-                          <span className="fw-bold text-light">{proj.stats?.csharp_classes || 1288}</span>
+                        <div className="p-2 rounded bg-body-tertiary border border-secondary-subtle">
+                          <span className="text-body-secondary d-block fs-11 fw-semibold">Classes</span>
+                          <span className="fw-bold text-body fs-14">{proj.stats?.csharp_classes || 1288}</span>
                         </div>
                       </div>
                       <div className="col-4">
-                        <div className="p-2 rounded bg-dark border border-secondary">
-                          <span className="text-muted d-block">Pages</span>
-                          <span className="fw-bold text-light">{proj.stats?.aspx_pages || 443}</span>
+                        <div className="p-2 rounded bg-body-tertiary border border-secondary-subtle">
+                          <span className="text-body-secondary d-block fs-11 fw-semibold">Pages</span>
+                          <span className="fw-bold text-body fs-14">{proj.stats?.aspx_pages || 443}</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="fs-11 text-muted mb-0 d-flex align-items-center justify-content-between">
+                    <div className="fs-11 text-body-secondary mb-0 d-flex align-items-center justify-content-between">
                       <span><i className="ti ti-file-zip me-1"></i>{proj.archive_name}</span>
                       <span><i className="ti ti-calendar me-1"></i>{new Date(proj.created_at || proj.uploadedAt || Date.now()).toLocaleDateString()}</span>
                     </div>
                   </div>
 
-                  <div className="card-footer bg-transparent border-top border-dark p-3 d-flex align-items-center justify-content-between">
+                  <div className="card-footer bg-transparent border-top border-secondary-subtle p-3 d-flex align-items-center justify-content-between">
                     <button
                       type="button"
                       className="btn btn-sm btn-outline-danger d-flex align-items-center gap-1 fs-12"
@@ -237,4 +230,5 @@ export const MorphHubPage: React.FC = () => {
     </div>
   );
 };
+
 export default MorphHubPage;

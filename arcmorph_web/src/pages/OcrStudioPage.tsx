@@ -172,7 +172,7 @@ export const OcrStudioPage: React.FC = () => {
 
       <div className="module-content-body">
         {/* Session Header Card */}
-        <div className="card mb-4 border-dark">
+        <div className="card mb-4 border-secondary-subtle">
           <div className="card-body p-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div className="d-flex align-items-center gap-2">
               <span className="badge bg-cyan-subtle text-cyan border border-cyan-subtle p-2">
@@ -180,14 +180,14 @@ export const OcrStudioPage: React.FC = () => {
               </span>
               <div>
                 <h6 className="mb-0 fw-bold font-monospace text-light">{activeSession.id}</h6>
-                <small className="text-muted">
+                <small className="text-body-secondary">
                   {activeSession.documents.length} Files Staged • Created: {new Date(activeSession.createdAt).toLocaleTimeString()}
                 </small>
               </div>
             </div>
 
             <div className="d-flex align-items-center gap-2">
-              <span className="badge bg-dark border border-secondary text-light">
+              <span className="badge bg-body-secondary border border-secondary-subtle text-body">
                 <i className="ti ti-clock me-1 text-cyan"></i> 3-Min Auto Inactivity Watchdog Active
               </span>
               <button
@@ -202,18 +202,18 @@ export const OcrStudioPage: React.FC = () => {
         </div>
 
         {/* Dropzone & Quick Document Triggers */}
-        <div className="card mb-4 border-2 border-dashed border-dark text-center p-4 bg-black-subtle">
+        <div className="card mb-4 border-2 border-dashed border-secondary-subtle text-center p-4 bg-body-tertiary">
           <div className="py-3">
             <i className="ti ti-cloud-upload fs-48 text-cyan mb-2 d-block opacity-75"></i>
-            <h5 className="fw-bold text-white mb-1">Drag & Drop Documents for Intelligent OCR Extraction</h5>
-            <p className="text-muted fs-13 mb-3">
+            <h5 className="fw-bold text-body mb-1">Drag & Drop Documents for Intelligent OCR Extraction</h5>
+            <p className="text-body-secondary fs-13 mb-3">
               Supports Passports, National IDs, Academic CVs, Architecture Specs, and Scanned Reports.
             </p>
 
             <div className="d-flex justify-content-center gap-2 flex-wrap">
               <button
                 type="button"
-                className="btn btn-sm btn-dark border-secondary text-light d-flex align-items-center gap-1.5"
+                className="btn btn-sm btn-outline-secondary text-body d-flex align-items-center gap-1.5"
                 disabled={isExtracting}
                 onClick={() => handleSimulatedUpload('passport')}
               >
@@ -221,7 +221,7 @@ export const OcrStudioPage: React.FC = () => {
               </button>
               <button
                 type="button"
-                className="btn btn-sm btn-dark border-secondary text-light d-flex align-items-center gap-1.5"
+                className="btn btn-sm btn-outline-secondary text-body d-flex align-items-center gap-1.5"
                 disabled={isExtracting}
                 onClick={() => handleSimulatedUpload('cv')}
               >
@@ -229,7 +229,7 @@ export const OcrStudioPage: React.FC = () => {
               </button>
               <button
                 type="button"
-                className="btn btn-sm btn-dark border-secondary text-light d-flex align-items-center gap-1.5"
+                className="btn btn-sm btn-outline-secondary text-body d-flex align-items-center gap-1.5"
                 disabled={isExtracting}
                 onClick={() => handleSimulatedUpload('generic')}
               >
@@ -252,25 +252,25 @@ export const OcrStudioPage: React.FC = () => {
             <div className="card h-100">
               <div className="card-header d-flex justify-content-between align-items-center">
                 <h6 className="card-title mb-0">Session Documents</h6>
-                <span className="badge rounded-pill bg-dark text-cyan">{activeSession.documents.length}</span>
+                <span className="badge rounded-pill bg-body-secondary border border-secondary-subtle text-cyan">{activeSession.documents.length}</span>
               </div>
               <div className="card-body p-2 d-flex flex-column gap-2 overflow-y-auto" style={{ maxHeight: '420px' }}>
                 {activeSession.documents.length === 0 ? (
-                  <div className="p-4 text-center text-muted fs-13">
+                  <div className="p-4 text-center text-body-secondary fs-13">
                     No documents uploaded in this project yet.
                   </div>
                 ) : (
                   activeSession.documents.map((doc) => (
                     <div
                       key={doc.id}
-                      className={`p-3 rounded border cursor-pointer ${selectedDoc?.id === doc.id ? 'border-cyan bg-cyan-subtle' : 'border-dark bg-dark'}`}
+                      className={`p-3 rounded border cursor-pointer ${selectedDoc?.id === doc.id ? 'border-cyan bg-cyan-subtle' : 'border-secondary-subtle bg-body-tertiary'}`}
                       onClick={() => setSelectedDocId(doc.id)}
                     >
                       <div className="d-flex justify-content-between align-items-center mb-1">
-                        <span className="fw-bold fs-12 text-truncate text-light font-monospace">{doc.name}</span>
+                        <span className="fw-bold fs-12 text-truncate text-body font-monospace">{doc.name}</span>
                         <span className="badge bg-success-subtle text-success fs-10">Done</span>
                       </div>
-                      <div className="d-flex justify-content-between text-muted fs-11">
+                      <div className="d-flex justify-content-between text-body-secondary fs-11">
                         <span>{doc.type}</span>
                         <span>{doc.size}</span>
                       </div>
@@ -286,7 +286,7 @@ export const OcrStudioPage: React.FC = () => {
               <div className="card-header d-flex justify-content-between align-items-center">
                 <h6 className="card-title mb-0">Extraction Inspector & Markdown Entity Viewer</h6>
                 {selectedDoc && (
-                  <span className="badge bg-dark border border-secondary text-cyan font-monospace fs-11">
+                  <span className="badge bg-body-secondary border border-secondary-subtle text-cyan font-monospace fs-11">
                     {selectedDoc.name}
                   </span>
                 )}
@@ -294,21 +294,21 @@ export const OcrStudioPage: React.FC = () => {
               <div className="card-body p-3 overflow-y-auto" style={{ maxHeight: '420px' }}>
                 {selectedDoc ? (
                   <div>
-                    <pre className="p-3 rounded bg-dark border border-secondary font-monospace fs-12 text-light mb-3" style={{ whiteSpace: 'pre-wrap' }}>
+                    <pre className="p-3 rounded bg-body-tertiary border border-secondary-subtle font-monospace fs-12 text-body mb-3" style={{ whiteSpace: 'pre-wrap' }}>
                       {selectedDoc.extractedMarkdown}
                     </pre>
 
                     {selectedDoc.extractedJson && (
                       <div>
-                        <h6 className="fw-bold fs-12 text-uppercase text-muted mb-2">Structured Entity JSON</h6>
-                        <pre className="p-3 rounded bg-dark border border-secondary font-monospace fs-11 text-cyan mb-0">
+                        <h6 className="fw-bold fs-12 text-uppercase text-body-secondary mb-2">Structured Entity JSON</h6>
+                        <pre className="p-3 rounded bg-body-tertiary border border-secondary-subtle font-monospace fs-11 text-cyan mb-0">
                           {JSON.stringify(selectedDoc.extractedJson, null, 2)}
                         </pre>
                       </div>
                     )}
                   </div>
                 ) : (
-                  <div className="p-5 text-center text-muted fs-13">
+                  <div className="p-5 text-center text-body-secondary fs-13">
                     Select a document from the left list to view extracted markdown and structured entities.
                   </div>
                 )}
@@ -318,11 +318,11 @@ export const OcrStudioPage: React.FC = () => {
         </div>
 
         {/* BOTTOM ACTION BAR: SAVE vs DISCARD */}
-        <div className="card border-dark bg-dark">
+        <div className="card border-secondary-subtle bg-body-tertiary">
           <div className="card-body p-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div>
-              <span className="text-light fw-bold fs-13 d-block">Project Session Management</span>
-              <small className="text-muted">
+              <span className="text-body fw-bold fs-13 d-block">Project Session Management</span>
+              <small className="text-body-secondary">
                 Finalizing will move files into <span className="text-cyan font-monospace">ocr_vault/ocrproject_{'{id}'}/Stored/</span>
               </small>
             </div>

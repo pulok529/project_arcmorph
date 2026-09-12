@@ -142,7 +142,7 @@ export const UserManagementPage: React.FC = () => {
             <div className="d-flex align-items-center gap-3">
               <div className="position-relative">
                 <img
-                  src={user?.avatar || '/assets/images/users/naimul_islam.jpg'}
+                  src={user?.avatar || '/assets/images/users/cyber_avatar.png'}
                   alt="SuperAdmin"
                   className="rounded-circle border border-cyan"
                   style={{ width: 48, height: 48, objectFit: 'cover' }}

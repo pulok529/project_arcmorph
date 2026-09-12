@@ -4,7 +4,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { useTasks, PipelineTask } from '../../context/TaskContext';
 import { useSessionLock } from '../../context/SessionLockContext';
-import { playCyberChime } from '../../utils/audioChime';
+import { useNotifications } from '../../context/NotificationContext';
 import Swal from 'sweetalert2';
 
 interface UIPageItem {
@@ -34,6 +34,7 @@ export const Topbar: React.FC = () => {
   const { user, logout, isSuperAdmin } = useAuth();
   const { hasActiveTasks, activeTasks, saveAndCheckpointAll, stopAndQuarantineAll } = useTasks();
   const { lockSession, clientIp } = useSessionLock();
+  const { notifications, unreadCount, hasNewNotificationTrigger, markAsRead } = useNotifications();
   const navigate = useNavigate();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -100,7 +101,6 @@ export const Topbar: React.FC = () => {
   const handleBellClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    playCyberChime();
     setIsDropdownOpen(false);
     setIsAppsGridOpen(false);
     setIsLangOpen(false);
@@ -370,106 +370,83 @@ export const Topbar: React.FC = () => {
           <div className="topbar-item position-relative" id="notification-dropdown-people" ref={notifDropdownRef}>
             <button 
               type="button" 
-              className="topbar-link dropdown-toggle drop-arrow-none position-relative"
+              className={`topbar-link dropdown-toggle drop-arrow-none position-relative ${hasNewNotificationTrigger ? 'soundwave-active border border-cyan' : ''}`}
               onClick={handleBellClick}
               title="Operational Alerts & Feedback"
+              style={hasNewNotificationTrigger ? { animation: 'nav-glow-pulse 1.5s infinite alternate' } : {}}
             >
-              <i className="ti ti-bell topbar-link-icon fs-20"></i>
-              <span 
-                className="badge rounded-pill bg-danger position-absolute" 
-                style={{ top: '4px', right: '4px', fontSize: '9px', padding: '2px 5px', lineHeight: 1 }}
-              >
-                5
-              </span>
+              <i className={`ti ti-bell topbar-link-icon fs-20 ${hasNewNotificationTrigger ? 'text-cyan' : ''}`}></i>
+              {unreadCount > 0 && (
+                <span 
+                  className="badge rounded-pill bg-danger position-absolute" 
+                  style={{ top: '4px', right: '4px', fontSize: '9px', padding: '2px 5px', lineHeight: 1 }}
+                >
+                  {unreadCount}
+                </span>
+              )}
             </button>
             {isNotifOpen && (
               <div 
                 className="dropdown-menu dropdown-menu-end show p-0 shadow-lg border rounded overflow-hidden"
-                style={{ position: 'absolute', top: 'calc(100% + 14px)', right: 0, width: '340px', zIndex: 1050 }}
+                style={{ position: 'absolute', top: 'calc(100% + 14px)', right: 0, width: '360px', zIndex: 1050 }}
               >
                 <div className="d-flex justify-content-between align-items-center px-3 py-2.5 border-bottom border-secondary-subtle bg-body-tertiary">
                   <h6 className="m-0 fw-bold text-body fs-13">Notifications</h6>
-                  <span className="badge bg-success-subtle text-success border border-success-subtle fw-semibold px-2 py-0.5 fs-11">5 New</span>
+                  {unreadCount > 0 ? (
+                    <span className="badge bg-danger-subtle text-danger border border-danger-subtle fw-semibold px-2 py-0.5 fs-11">
+                      {unreadCount} Unread
+                    </span>
+                  ) : (
+                    <span className="badge bg-success-subtle text-success border border-success-subtle fw-semibold px-2 py-0.5 fs-11">
+                      All Caught Up
+                    </span>
+                  )}
                 </div>
 
-                <div className="list-group list-group-flush" style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                  <Link 
-                    to="/notifications" 
-                    onClick={() => setIsNotifOpen(false)} 
-                    className="list-group-item list-group-item-action d-flex align-items-start gap-3 py-2.5 px-3 border-bottom border-secondary-subtle text-decoration-none"
-                  >
-                    <div className="position-relative flex-shrink-0">
-                      <img src="/assets/images/users/avatar-1.jpg" alt="Emily" className="rounded-circle" style={{ width: 36, height: 36, objectFit: 'cover' }} onError={e => { (e.target as HTMLElement).style.display = 'none'; }} />
-                      <span className="position-absolute bottom-0 end-0 badge rounded-circle bg-success p-1 d-flex align-items-center justify-content-center" style={{ width: 14, height: 14 }}>
-                        <i className="ti ti-bell fs-10 text-white"></i>
-                      </span>
-                    </div>
-                    <div className="flex-grow-1">
-                      <div className="fs-12 text-body">
-                        <strong>Emily Johnson</strong> <span className="text-muted">commented on</span> <strong>Design Sprint</strong>
-                      </div>
-                      <small className="text-muted fs-11">12 minutes ago</small>
-                    </div>
-                  </Link>
-
-                  <Link 
-                    to="/notifications" 
-                    onClick={() => setIsNotifOpen(false)} 
-                    className="list-group-item list-group-item-action d-flex align-items-start gap-3 py-2.5 px-3 border-bottom border-secondary-subtle text-decoration-none"
-                  >
-                    <div className="position-relative flex-shrink-0">
-                      <img src="/assets/images/users/avatar-2.jpg" alt="Michael" className="rounded-circle" style={{ width: 36, height: 36, objectFit: 'cover' }} onError={e => { (e.target as HTMLElement).style.display = 'none'; }} />
-                      <span className="position-absolute bottom-0 end-0 badge rounded-circle bg-info p-1 d-flex align-items-center justify-content-center" style={{ width: 14, height: 14 }}>
-                        <i className="ti ti-cloud-upload fs-10 text-white"></i>
-                      </span>
-                    </div>
-                    <div className="flex-grow-1">
-                      <div className="fs-12 text-body">
-                        <strong>Michael Lee</strong> <span className="text-muted">uploaded files to</span> <strong>Marketing Assets</strong>
-                      </div>
-                      <small className="text-muted fs-11">25 minutes ago</small>
-                    </div>
-                  </Link>
-
-                  <Link 
-                    to="/notifications" 
-                    onClick={() => setIsNotifOpen(false)} 
-                    className="list-group-item list-group-item-action d-flex align-items-start gap-3 py-2.5 px-3 border-bottom border-secondary-subtle text-decoration-none"
-                  >
-                    <div className="position-relative flex-shrink-0">
-                      <div className="rounded-circle bg-body-tertiary border border-secondary-subtle d-flex align-items-center justify-content-center" style={{ width: 36, height: 36 }}>
-                        <i className="ti ti-database fs-16 text-warning"></i>
-                      </div>
-                      <span className="position-absolute bottom-0 end-0 badge rounded-circle bg-danger p-1 d-flex align-items-center justify-content-center" style={{ width: 14, height: 14 }}>
-                        <i className="ti ti-alert-circle fs-10 text-white"></i>
-                      </span>
-                    </div>
-                    <div className="flex-grow-1">
-                      <div className="fs-12 text-body">
-                        <strong>Server #3</strong> <span className="text-muted">CPU usage exceeded</span> <strong className="text-danger">90%</strong>
-                      </div>
-                      <small className="text-muted fs-11">Just now</small>
-                    </div>
-                  </Link>
-
-                  <Link 
-                    to="/notifications" 
-                    onClick={() => setIsNotifOpen(false)} 
-                    className="list-group-item list-group-item-action d-flex align-items-start gap-3 py-2.5 px-3 border-bottom border-secondary-subtle text-decoration-none"
-                  >
-                    <div className="position-relative flex-shrink-0">
-                      <img src="/assets/images/users/avatar-3.jpg" alt="Sophia" className="rounded-circle" style={{ width: 36, height: 36, objectFit: 'cover' }} onError={e => { (e.target as HTMLElement).style.display = 'none'; }} />
-                      <span className="position-absolute bottom-0 end-0 badge rounded-circle bg-warning p-1 d-flex align-items-center justify-content-center" style={{ width: 14, height: 14 }}>
-                        <i className="ti ti-alert-triangle fs-10 text-dark"></i>
-                      </span>
-                    </div>
-                    <div className="flex-grow-1">
-                      <div className="fs-12 text-body">
-                        <strong>Sophia Ray</strong> <span className="text-muted">flagged an issue in</span> <strong>Bug Tracker</strong>
-                      </div>
-                      <small className="text-muted fs-11">45 minutes ago</small>
-                    </div>
-                  </Link>
+                <div className="list-group list-group-flush" style={{ maxHeight: '320px', overflowY: 'auto' }}>
+                  {notifications.slice(0, 5).map(n => {
+                    const getIconClass = () => {
+                      if (n.category === 'AI Feedback') return { icon: 'ti-brain', color: 'text-cyan', bg: 'bg-info-subtle' };
+                      if (n.category === 'Audit Blueprint') return { icon: 'ti-file-code', color: 'text-warning', bg: 'bg-warning-subtle' };
+                      if (n.category === 'Process Alert') return { icon: 'ti-alert-circle', color: 'text-danger', bg: 'bg-danger-subtle' };
+                      return { icon: 'ti-info-circle', color: 'text-primary', bg: 'bg-primary-subtle' };
+                    };
+                    const iconStyle = getIconClass();
+                    return (
+                      <Link 
+                        key={n.id}
+                        to="/notifications" 
+                        onClick={() => {
+                          markAsRead(n.id);
+                          setIsNotifOpen(false);
+                        }} 
+                        className={`list-group-item list-group-item-action d-flex align-items-start gap-2.5 py-2.5 px-3 border-bottom border-secondary-subtle text-decoration-none ${n.isUnread ? 'bg-primary-subtle bg-opacity-10' : ''}`}
+                      >
+                        <div className="position-relative flex-shrink-0 mt-0.5">
+                          <div className={`rounded-circle ${iconStyle.bg} d-flex align-items-center justify-content-center`} style={{ width: 34, height: 34 }}>
+                            <i className={`ti ${iconStyle.icon} fs-16 ${iconStyle.color}`}></i>
+                          </div>
+                          {n.isUnread && (
+                            <span 
+                              className="position-absolute top-0 end-0 bg-danger border border-light rounded-circle" 
+                              style={{ width: 8, height: 8 }}
+                            ></span>
+                          )}
+                        </div>
+                        <div className="flex-grow-1 overflow-hidden">
+                          <div className="d-flex align-items-center justify-content-between gap-1">
+                            <span className="fs-12 fw-bold text-body text-truncate" style={{ maxWidth: '190px' }}>
+                              {n.title}
+                            </span>
+                            <small className="text-muted fs-10 text-nowrap">{n.createdAt}</small>
+                          </div>
+                          <div className="fs-11 text-muted text-truncate mt-0.5" style={{ maxWidth: '250px' }}>
+                            {n.message}
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
                 </div>
 
                 <div className="p-2.5 text-center border-top border-secondary-subtle bg-body-tertiary">
@@ -478,7 +455,7 @@ export const Topbar: React.FC = () => {
                     className="btn btn-sm btn-link text-primary fw-semibold fs-12 w-100 text-decoration-none d-flex align-items-center justify-content-center gap-1 hover-cyan py-1"
                     onClick={() => setIsNotifOpen(false)}
                   >
-                    <span>View All Notifications</span>
+                    <span>View All Notifications ({notifications.length})</span>
                     <i className="ti ti-arrow-right fs-12"></i>
                   </Link>
                 </div>
@@ -555,7 +532,7 @@ export const Topbar: React.FC = () => {
               }}
             >
               <img
-                src={user?.avatar || "/assets/images/users/naimul_islam.jpg"}
+                src={user?.avatar || "/assets/images/users/cyber_avatar.png"}
                 alt="user"
                 className="rounded-circle border border-cyan avatar-xs"
                 style={{ width: 32, height: 32, objectFit: 'cover' }}

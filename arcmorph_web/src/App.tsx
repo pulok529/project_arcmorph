@@ -6,6 +6,7 @@ import { SessionLockProvider } from './context/SessionLockContext';
 import { TaskProvider } from './context/TaskContext';
 import { ModelProvider } from './context/ModelContext';
 import { OcrSessionProvider } from './context/OcrSessionContext';
+import { NotificationProvider } from './context/NotificationContext';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { AppLayout } from './components/layout/AppLayout';
 
@@ -34,7 +35,8 @@ export function App() {
           <TaskProvider>
             <ModelProvider>
               <OcrSessionProvider>
-                <BrowserRouter>
+                <NotificationProvider>
+                  <BrowserRouter>
                   <Routes>
                     {/* Public Cybernetic Auth Gateway */}
                     <Route path="/login" element={<LoginPage />} />
@@ -95,6 +97,7 @@ export function App() {
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </BrowserRouter>
+                </NotificationProvider>
               </OcrSessionProvider>
             </ModelProvider>
           </TaskProvider>

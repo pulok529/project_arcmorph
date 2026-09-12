@@ -266,7 +266,7 @@ export const TerminalPage: React.FC = () => {
             <div className="d-flex align-items-center gap-3">
               <div className="d-flex align-items-center gap-2">
                 <span className="badge bg-cyan text-dark fw-bold px-2 py-1 fs-12">MASTER TERMINAL</span>
-                <span className="text-light fw-bold">Session: {projectId}</span>
+                <span className="text-body fw-bold">Session: {projectId}</span>
               </div>
               <div className="d-none d-md-flex align-items-center gap-2 fs-12 text-muted">
                 <span><i className="ti ti-cpu text-info me-1"></i> qwen2.5-coder-14b</span>
@@ -278,14 +278,14 @@ export const TerminalPage: React.FC = () => {
             <div className="d-flex gap-2">
               <button
                 type="button"
-                className="btn btn-sm btn-dark border-secondary text-light d-flex align-items-center gap-1.5"
+                className="btn btn-sm btn-outline-secondary text-body d-flex align-items-center gap-1.5"
                 onClick={() => setShowDocsModal(true)}
               >
                 <i className="ti ti-help text-cyan"></i> Command Docs
               </button>
               <button
                 type="button"
-                className="btn btn-sm btn-dark border-secondary text-light d-flex align-items-center gap-1.5"
+                className="btn btn-sm btn-outline-secondary text-body d-flex align-items-center gap-1.5"
                 onClick={() => setShowUploadModal(true)}
               >
                 <i className="ti ti-upload text-cyan"></i> Batch Upload
@@ -307,7 +307,7 @@ export const TerminalPage: React.FC = () => {
           <div className="col-xl-7">
             <div className="card h-100 border-dark shadow-lg" style={{ background: '#080c14', borderRadius: '12px', overflow: 'hidden' }}>
               {/* Chrome Header */}
-              <div className="d-flex align-items-center justify-content-between px-3 py-2 border-bottom border-dark" style={{ background: '#0f172a' }}>
+              <div className="d-flex align-items-center justify-content-between px-3 py-2 border-bottom border-secondary-subtle" style={{ background: '#0f172a' }}>
                 <div className="d-flex align-items-center gap-2">
                   <span className="rounded-circle" style={{ width: 10, height: 10, background: '#ef4444', display: 'inline-block' }}></span>
                   <span className="rounded-circle" style={{ width: 10, height: 10, background: '#f59e0b', display: 'inline-block' }}></span>
@@ -343,7 +343,7 @@ export const TerminalPage: React.FC = () => {
               </div>
 
               {/* Master Terminal Input Bar (Only Editable Console) */}
-              <form onSubmit={handleCommandSubmit} className="p-2 px-3 border-top border-dark d-flex align-items-center gap-2" style={{ background: '#0d1322' }}>
+              <form onSubmit={handleCommandSubmit} className="p-2 px-3 border-top border-secondary-subtle d-flex align-items-center gap-2" style={{ background: '#0d1322' }}>
                 <span className="text-cyan fw-bold font-monospace fs-14">&gt;</span>
                 <input
                   ref={inputRef}
@@ -363,14 +363,14 @@ export const TerminalPage: React.FC = () => {
 
           {/* Right Column: Subagent Telemetry Pane with Rolling Digits */}
           <div className="col-xl-5">
-            <div className="card h-100 border-dark shadow-sm">
-              <div className="card-header d-flex justify-content-between align-items-center border-bottom border-dark">
+            <div className="card h-100 border-secondary-subtle shadow-sm">
+              <div className="card-header d-flex justify-content-between align-items-center border-bottom border-secondary-subtle">
                 <div className="d-flex align-items-center gap-2">
                   <i className="ti ti-sitemap text-cyan fs-18"></i>
-                  <h6 className="card-title mb-0 text-white fw-bold">Subagent Execution Cluster ({allSubagents.length})</h6>
+                  <h6 className="card-title mb-0 text-body fw-bold">Subagent Execution Cluster ({allSubagents.length})</h6>
                 </div>
                 {/* Live Rolling Digits Pill */}
-                <div className="d-flex align-items-center gap-2 font-monospace fs-11 text-cyan bg-dark border border-cyan-subtle px-2 py-0.5 rounded">
+                <div className="d-flex align-items-center gap-2 font-monospace fs-11 text-cyan bg-body-tertiary border border-cyan-subtle px-2 py-0.5 rounded">
                   <span className="spinner-grow spinner-grow-sm text-cyan" style={{ width: 8, height: 8 }} role="status"></span>
                   <span>{rollingDigits.tokensPerSec} t/s</span>
                   <span>•</span>
@@ -390,11 +390,11 @@ export const TerminalPage: React.FC = () => {
                     return (
                       <div
                         key={sub.id}
-                        className={`p-3 rounded border ${isSelected ? 'border-cyan bg-cyan-subtle' : 'border-dark bg-dark'} transition-all`}
+                        className={`p-3 rounded border ${isSelected ? 'border-cyan bg-cyan-subtle' : 'border-secondary-subtle bg-body-tertiary'} transition-all`}
                       >
                         <div className="d-flex align-items-center justify-content-between mb-2">
                           <div className="d-flex align-items-center gap-2">
-                            <span className="fw-bold text-white fs-13">{sub.name}</span>
+                            <span className="fw-bold text-body fs-13">{sub.name}</span>
                             <span className={`badge ${sub.status === 'running' ? 'bg-success' : sub.status === 'paused' ? 'bg-warning text-dark' : 'bg-secondary'} fs-10 text-uppercase`}>
                               {sub.status}
                             </span>
@@ -440,7 +440,7 @@ export const TerminalPage: React.FC = () => {
                         </div>
 
                         <div className="d-flex align-items-center justify-content-between fs-11 text-muted mb-1 font-monospace">
-                          <span>Role: <strong className="text-light">{sub.role}</strong></span>
+                          <span>Role: <strong className="text-body">{sub.role}</strong></span>
                           <span>Progress: <strong className="text-cyan">{sub.progress}%</strong></span>
                         </div>
 
@@ -452,9 +452,9 @@ export const TerminalPage: React.FC = () => {
                         </div>
 
                         {/* Recent Subagent Log Snippet */}
-                        <div className="p-2 rounded bg-black-subtle border border-dark font-monospace fs-11 text-light" style={{ maxHeight: '70px', overflowY: 'auto' }}>
+                        <div className="p-2 rounded bg-body-tertiary border border-secondary-subtle font-monospace fs-11 text-body" style={{ maxHeight: '70px', overflowY: 'auto' }}>
                           {sub.logs.slice(-2).map((l: string, i: number) => (
-                            <div key={i} className="text-truncate text-muted">{l}</div>
+                            <div key={i} className="text-truncate text-body-secondary">{l}</div>
                           ))}
                         </div>
                       </div>
@@ -471,8 +471,8 @@ export const TerminalPage: React.FC = () => {
       {showUploadModal && (
         <div className="modal show d-block" style={{ backgroundColor: 'rgba(5, 8, 17, 0.85)', backdropFilter: 'blur(8px)', zIndex: 1060 }}>
           <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content border border-cyan bg-dark text-light shadow-lg">
-              <div className="modal-header border-bottom border-secondary px-4 py-3">
+            <div className="modal-content border border-cyan bg-body text-body shadow-2xl">
+              <div className="modal-header border-bottom border-secondary-subtle px-4 py-3">
                 <h5 className="modal-title fw-bold text-white d-flex align-items-center gap-2">
                   <i className="ti ti-upload text-cyan"></i> Batch File & Directory Ingestion
                 </h5>
@@ -481,7 +481,7 @@ export const TerminalPage: React.FC = () => {
               <form onSubmit={handleBatchUploadConfirm}>
                 <div className="modal-body p-4">
                   <div className="mb-3">
-                    <label className="form-label fs-12 text-uppercase text-light fw-bold">Upload Type</label>
+                    <label className="form-label fs-12 text-uppercase text-body fw-bold">Upload Type</label>
                     <div className="btn-group w-100" role="group">
                       <button
                         type="button"
@@ -508,10 +508,10 @@ export const TerminalPage: React.FC = () => {
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label fs-12 text-uppercase text-light fw-bold">Target Path / Identifier</label>
+                    <label className="form-label fs-12 text-uppercase text-body fw-bold">Target Path / Identifier</label>
                     <input
                       type="text"
-                      className="form-control bg-dark border-secondary text-light fs-13 font-monospace"
+                      className="form-control bg-body border-secondary-subtle text-body fs-13 font-monospace"
                       placeholder="e.g. Bornomala.Accounts.zip or StudentController.cs"
                       value={newUploadName}
                       onChange={e => setNewUploadName(e.target.value)}
@@ -519,12 +519,12 @@ export const TerminalPage: React.FC = () => {
                     />
                   </div>
 
-                  <div className="p-3 rounded border border-dashed border-secondary text-center">
+                  <div className="p-3 rounded border border-dashed border-secondary-subtle text-center bg-body-tertiary">
                     <i className="ti ti-file-upload fs-28 text-cyan d-block mb-1"></i>
                     <span className="fs-12 text-muted">Simulate batch upload by submitting. Files will stage immediately into the terminal environment.</span>
                   </div>
                 </div>
-                <div className="modal-footer border-top border-secondary px-4 py-3 d-flex justify-content-between">
+                <div className="modal-footer border-top border-secondary-subtle px-4 py-3 d-flex justify-content-between">
                   <button type="button" className="btn btn-secondary btn-sm" onClick={() => setShowUploadModal(false)}>
                     Cancel
                   </button>
@@ -542,8 +542,8 @@ export const TerminalPage: React.FC = () => {
       {showDocsModal && (
         <div className="modal show d-block" style={{ backgroundColor: 'rgba(5, 8, 17, 0.85)', backdropFilter: 'blur(8px)', zIndex: 1060 }}>
           <div className="modal-dialog modal-dialog-centered modal-lg">
-            <div className="modal-content border border-cyan bg-dark text-light shadow-lg">
-              <div className="modal-header border-bottom border-secondary px-4 py-3">
+            <div className="modal-content border border-cyan bg-body text-body shadow-2xl">
+              <div className="modal-header border-bottom border-secondary-subtle px-4 py-3">
                 <h5 className="modal-title fw-bold text-white d-flex align-items-center gap-2">
                   <i className="ti ti-book text-cyan"></i> Master Terminal Command Manual
                 </h5>
@@ -560,46 +560,46 @@ export const TerminalPage: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr className="border-bottom border-dark">
+                      <tr className="border-bottom border-secondary-subtle">
                         <td><code className="text-cyan fw-bold">upload</code></td>
                         <td>Opens batch upload modal for folders, files, or zip archives</td>
-                        <td><code className="text-light">upload</code></td>
+                        <td><code className="text-cyan">upload</code></td>
                       </tr>
-                      <tr className="border-bottom border-dark">
+                      <tr className="border-bottom border-secondary-subtle">
                         <td><code className="text-cyan fw-bold">ls / dir</code></td>
                         <td>Lists all staged files with sizes, types, and morph status</td>
-                        <td><code className="text-light">ls</code></td>
+                        <td><code className="text-cyan">ls</code></td>
                       </tr>
-                      <tr className="border-bottom border-dark">
+                      <tr className="border-bottom border-secondary-subtle">
                         <td><code className="text-cyan fw-bold">* morph</code></td>
                         <td>Wildcard: Spawns parallel subagents for all staged files</td>
-                        <td><code className="text-light">* morph</code></td>
+                        <td><code className="text-cyan">* morph</code></td>
                       </tr>
-                      <tr className="border-bottom border-dark">
+                      <tr className="border-bottom border-secondary-subtle">
                         <td><code className="text-cyan fw-bold">&lt;f1&gt;, &lt;f2&gt; morph</code></td>
                         <td>Morphs specific files separated by commas</td>
-                        <td><code className="text-light">StudentAdmission.aspx.cs, dbo.tblStudentInfo.sql morph</code></td>
+                        <td><code className="text-cyan">StudentAdmission.aspx.cs, dbo.tblStudentInfo.sql morph</code></td>
                       </tr>
-                      <tr className="border-bottom border-dark">
+                      <tr className="border-bottom border-secondary-subtle">
                         <td><code className="text-cyan fw-bold">status</code></td>
                         <td>Prints real-time subagent workload, memory, and tokens/s</td>
-                        <td><code className="text-light">status</code></td>
+                        <td><code className="text-cyan">status</code></td>
                       </tr>
-                      <tr className="border-bottom border-dark">
+                      <tr className="border-bottom border-secondary-subtle">
                         <td><code className="text-cyan fw-bold">models</code></td>
                         <td>Inspects registered local and cloud AI models</td>
-                        <td><code className="text-light">models</code></td>
+                        <td><code className="text-cyan">models</code></td>
                       </tr>
                       <tr>
                         <td><code className="text-cyan fw-bold">clear</code></td>
                         <td>Clears screen output buffer of master terminal</td>
-                        <td><code className="text-light">clear</code></td>
+                        <td><code className="text-cyan">clear</code></td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
               </div>
-              <div className="modal-footer border-top border-secondary px-4 py-3">
+              <div className="modal-footer border-top border-secondary-subtle px-4 py-3">
                 <button type="button" className="btn btn-secondary btn-sm" onClick={() => setShowDocsModal(false)}>
                   Close Manual
                 </button>
@@ -613,8 +613,8 @@ export const TerminalPage: React.FC = () => {
       {soloSubagent && !isSoloMinimized && (
         <div className="modal show d-block" style={{ backgroundColor: 'rgba(5, 8, 17, 0.88)', backdropFilter: 'blur(10px)', zIndex: 1070 }}>
           <div className="modal-dialog modal-dialog-centered modal-xl">
-            <div className="modal-content border border-cyan bg-dark text-light shadow-lg" style={{ height: '80vh' }}>
-              <div className="modal-header border-bottom border-secondary px-4 py-3 d-flex justify-content-between align-items-center">
+            <div className="modal-content border border-cyan bg-body text-body shadow-2xl" style={{ height: '80vh' }}>
+              <div className="modal-header border-bottom border-secondary-subtle px-4 py-3 d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center gap-2">
                   <span className="badge bg-cyan text-dark fw-bold fs-11">SOLO DEDICATED STREAM</span>
                   <h5 className="modal-title fw-bold text-white mb-0">{soloSubagent.name} ({soloSubagent.role})</h5>
@@ -645,15 +645,15 @@ export const TerminalPage: React.FC = () => {
                   === SOLO DEDICATED STREAM: {soloSubagent.name} (Started: {soloSubagent.startTime}) ===
                 </div>
                 {soloSubagent.logs.map((log, idx) => (
-                  <div key={idx} className="text-light">{log}</div>
+                  <div key={idx} className="text-body">{log}</div>
                 ))}
                 <div ref={soloEndRef} />
               </div>
 
-              <div className="modal-footer border-top border-secondary px-4 py-3 d-flex justify-content-between align-items-center">
+              <div className="modal-footer border-top border-secondary-subtle px-4 py-3 d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center gap-3 fs-12 text-muted font-monospace">
                   <span>Status: <strong className="text-success">{soloSubagent.status.toUpperCase()}</strong></span>
-                  <span>Tokens Processed: <strong className="text-light">{soloSubagent.tokensProcessed.toLocaleString()}</strong></span>
+                  <span>Tokens Processed: <strong className="text-body">{soloSubagent.tokensProcessed.toLocaleString()}</strong></span>
                 </div>
                 <div className="d-flex gap-2">
                   <button
@@ -680,7 +680,7 @@ export const TerminalPage: React.FC = () => {
       {/* Solo Minimized Floating Pill */}
       {soloSubagent && isSoloMinimized && (
         <div
-          className="position-fixed bottom-0 end-0 m-4 p-3 rounded shadow-lg border border-cyan bg-dark text-light cursor-pointer d-flex align-items-center gap-3"
+          className="position-fixed bottom-0 end-0 m-4 p-3 rounded shadow-lg border border-cyan bg-body border-secondary-subtle text-body cursor-pointer d-flex align-items-center gap-3"
           style={{ zIndex: 1080 }}
           onClick={() => setIsSoloMinimized(false)}
         >

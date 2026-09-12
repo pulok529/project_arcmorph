@@ -243,7 +243,7 @@ export const Sidebar: React.FC = () => {
               <div>
                 <Link className="link-reset" to="/profile">
                   <img
-                    src={user?.avatar || "/assets/images/users/naimul_islam.jpg"}
+                    src={user?.avatar || "/assets/images/users/cyber_avatar.png"}
                     alt="user"
                     className="rounded-circle mb-2 avatar-md"
                     style={{ objectFit: 'cover' }}

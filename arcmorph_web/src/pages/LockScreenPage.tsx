@@ -99,7 +99,7 @@ export const LockScreenPage: React.FC = () => {
           {/* User Avatar */}
           <div className="position-relative d-inline-block mb-3">
             <img
-              src="/assets/images/users/naimul_islam.jpg"
+              src="/assets/images/users/cyber_avatar.png"
               alt="Naimul Islam"
               className="rounded-circle border border-2 border-cyan shadow"
               style={{ width: 80, height: 80, objectFit: 'cover' }}
