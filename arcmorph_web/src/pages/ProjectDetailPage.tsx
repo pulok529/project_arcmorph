@@ -994,6 +994,20 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ projectId:
             {/* Quick Overview Triggers & Workspace Links */}
             <div className="page-title-right mt-3 mt-sm-0">
               <div className="d-flex align-items-center gap-2 flex-wrap">
+                <Link
+                  to={`/projects/${project.id}/graph`}
+                  className="btn btn-sm rounded-pill fw-bold shadow-sm d-inline-flex align-items-center gap-1 px-3 py-2 text-dark"
+                  style={{
+                    background: 'linear-gradient(135deg, #00f2fe, #38bdf8)',
+                    border: 'none',
+                    boxShadow: '0 4px 14px rgba(0, 242, 254, 0.45)'
+                  }}
+                  title="Open Dedicated 2D/3D Architecture Topology Graph"
+                >
+                  <i className="ti ti-chart-dots-3 fs-15 text-dark"></i>
+                  <span className="fw-bold">🌐 Topology Graph</span>
+                </Link>
+
                 <button
                   onClick={() => setShowOverviewV2Modal(true)}
                   className="btn btn-primary btn-sm rounded-pill fw-bold shadow-sm d-inline-flex align-items-center gap-1.5 px-3.5 py-2 text-white"

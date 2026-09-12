@@ -12,6 +12,7 @@ import { UploadPage } from './pages/UploadPage';
 import { TerminalPage } from './pages/TerminalPage';
 import { AiStudioPage } from './pages/AiStudioPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
+import { ArchitectureGraphPage } from './pages/ArchitectureGraphPage';
 import { EmptyPage } from './pages/EmptyPage';
 
 export function App() {
@@ -22,6 +23,24 @@ export function App() {
           <Routes>
             {/* Public Authentication Gateway */}
             <Route path="/login" element={<LoginPage />} />
+
+            {/* Dedicated Full-Screen Architecture Topology Graph */}
+            <Route
+              path="/projects/:id/graph"
+              element={
+                <ProtectedRoute>
+                  <ArchitectureGraphPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/architecture-graph"
+              element={
+                <ProtectedRoute>
+                  <ArchitectureGraphPage />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Protected ArcMorph Modernization Platform Suite */}
             <Route

@@ -179,23 +179,33 @@ export const MorphHubPage: React.FC = () => {
                       <i className="ti ti-trash"></i> Delete
                     </button>
 
-                    {isCompleted ? (
+                    <div className="d-flex align-items-center gap-2">
                       <Link
-                        to={`/projects/${proj.id}`}
-                        className="btn btn-sm fw-bold px-3 d-flex align-items-center gap-1 fs-12 shadow-sm"
-                        style={{ background: 'linear-gradient(135deg, #00f2fe 0%, #3b82f6 100%)', color: '#0b0f19', border: 'none' }}
+                        to={`/projects/${proj.id}/graph`}
+                        className="btn btn-sm btn-outline-info d-flex align-items-center gap-1 fs-12"
+                        title="Open Interactive Architecture Topology Graph"
                       >
-                        <i className="ti ti-layout-grid"></i> Open Cockpit <i className="ti ti-arrow-right ms-1"></i>
+                        <i className="ti ti-chart-dots-3 text-cyan"></i> Topology Graph
                       </Link>
-                    ) : (
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-outline-warning d-flex align-items-center gap-1 fs-12"
-                        onClick={(e) => handleAnalyze(proj.id, e)}
-                      >
-                        <i className="ti ti-player-play"></i> Run Analysis
-                      </button>
-                    )}
+
+                      {isCompleted ? (
+                        <Link
+                          to={`/projects/${proj.id}`}
+                          className="btn btn-sm fw-bold px-3 d-flex align-items-center gap-1 fs-12 shadow-sm"
+                          style={{ background: 'linear-gradient(135deg, #00f2fe 0%, #3b82f6 100%)', color: '#0b0f19', border: 'none' }}
+                        >
+                          <i className="ti ti-layout-grid"></i> Open Cockpit <i className="ti ti-arrow-right ms-1"></i>
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-warning d-flex align-items-center gap-1 fs-12"
+                          onClick={(e) => handleAnalyze(proj.id, e)}
+                        >
+                          <i className="ti ti-player-play"></i> Run Analysis
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
