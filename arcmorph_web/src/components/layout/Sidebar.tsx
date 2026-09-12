@@ -52,39 +52,6 @@ export const menuData: MenuCategory[] = [
         path: '/morph-hub'
       }
     ]
-  },
-  {
-    category: 'INTELLIGENCE & AUDIT',
-    items: [
-      {
-        title: 'Notification Hub',
-        icon: 'ti-bell',
-        path: '/notifications',
-        badge: { text: 'Audit', variant: 'danger' }
-      },
-      {
-        title: 'RAG Code Search',
-        icon: 'ti-search',
-        path: '/search'
-      },
-      {
-        title: 'Engineer Profile & CV',
-        icon: 'ti-id-badge-2',
-        path: '/profile'
-      },
-      {
-        title: 'SuperUser Control',
-        icon: 'ti-shield-lock',
-        path: '/users',
-        badge: { text: 'Root', variant: 'warning' },
-        superAdminOnly: true
-      },
-      {
-        title: 'System Settings',
-        icon: 'ti-settings',
-        path: '/settings'
-      }
-    ]
   }
 ];
 

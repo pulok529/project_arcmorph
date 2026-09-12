@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ArcMorph 3D Architecture Graph & TreeView Demo</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #070a12; font-family: system-ui, -apple-system, sans-serif; }
+    .bg-cyber-grid {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(0, 242, 254, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 242, 254, 0.04) 1px, transparent 1px);
+    }
+    .custom-scroll::-webkit-scrollbar { width: 5px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+  </style>
+</head>
+<body class="flex h-screen w-screen text-slate-200 antialiased select-none bg-cyber-grid">
+
+  <!-- LEFT PANEL: Elite Developer TreeView -->
+  <aside class="w-80 border-r border-slate-800/80 bg-slate-950/80 backdrop-blur-xl flex flex-col z-20">
+    <!-- Tree Header -->
+    <div class="p-4 border-b border-slate-800/80 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#00f2fe]"></span>
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Architecture TreeView</h2>
+      </div>
+      <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-400">Roslyn AST</span>
+    </div>
+
+    <!-- Tree Search -->
+    <div class="p-3 border-b border-slate-800/60">
+      <input type="text" id="treeSearch" placeholder="Search classes, tables, forms..." 
+        class="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/50">
+    </div>
+
+    <!-- Tree Hierarchy Nodes -->
+    <div class="flex-1 overflow-y-auto custom-scroll p-3 space-y-1 text-xs" id="treeContainer">
+      <!-- Generated via JS -->
+    </div>
+
+    <!-- Tree Footer Stats -->
+    <div class="p-3 border-t border-slate-800/80 bg-slate-900/40 text-[11px] text-slate-400 flex justify-between items-center">
+      <span>Total Debt Score: <strong class="text-amber-400">v(G)=14.8</strong></span>
+      <span class="text-emerald-400 font-mono">100% Parsed</span>
+    </div>
+  </aside>
+
+  <!-- MAIN CANVAS: 3D Spatial Tiered Architecture Graph -->
+  <main class="flex-1 relative flex flex-col overflow-hidden">
+    <!-- Top Floating Toolbar -->
+    <header class="absolute top-4 left-6 right-6 flex items-center justify-between pointer-events-none z-10">
+      <div class="flex items-center gap-3 bg-slate-900/80 backdrop-blur-md border border-slate-800 px-4 py-2 rounded-2xl shadow-xl pointer-events-auto">
+        <div class="text-xs font-bold text-white flex items-center gap-2">
+          <span class="text-cyan-400">ArcMorph</span>
+          <span class="text-slate-500">•</span>
+          <span class="text-slate-300">Spatial Tiered Topology</span>
+        </div>
+        <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">Interactive WebGL Canvas</span>
+      </div>
+
+      <!-- View Controls -->
+      <div class="flex items-center gap-2 bg-slate-900/80 backdrop-blur-md border border-slate-800 p-1 rounded-xl shadow-xl pointer-events-auto text-xs">
+        <button id="btnIso" class="px-3 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-medium">3D Spatial Tiers</button>
+        <button id="btnFlat" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white transition font-medium">2D Force Graph</button>
+        <button id="btnPulse" class="px-3 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium">⚡ Pulse Signals</button>
+      </div>
+    </header>
+
+    <!-- Canvas Rendering Area -->
+    <canvas id="graphCanvas" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
+
+    <!-- Floating Node Inspector HUD (Top Right) -->
+    <div id="inspectorHud" class="absolute top-20 right-6 w-80 bg-slate-900/90 backdrop-blur-xl border border-slate-800/90 rounded-2xl p-4 shadow-2xl space-y-3 z-10 transition-all duration-300">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <div class="flex items-center gap-2">
+          <span id="hudBadge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800">BLL</span>
+          <h3 id="hudTitle" class="text-xs font-bold text-white">UserService.cs</h3>
+        </div>
+        <span id="hudDebtBadge" class="text-[9px] px-1.5 py-0.5 rounded bg-red-950 text-red-400 border border-red-800 font-bold uppercase">High Debt</span>
+      </div>
+
+      <div class="space-y-2 text-[11px]">
+        <div>
+          <span class="text-slate-400 block text-[10px] uppercase tracking-wider font-semibold">Call Chain</span>
+          <div id="hudCallChain" class="font-mono text-cyan-300 mt-0.5 bg-slate-950/60 p-1.5 rounded border border-slate-800/60">
+            Dashboard.aspx &rarr; UserService.cs &rarr; dbo.Users
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <div class="bg-slate-950/40 border border-slate-800/60 p-2 rounded-xl">
+            <span class="text-slate-400 block text-[10px]">Cyclomatic Comp.</span>
+            <span id="hudComplexity" class="text-sm font-bold text-amber-400">v(G) = 25</span>
+          </div>
+          <div class="bg-slate-950/40 border border-slate-800/60 p-2 rounded-xl">
+            <span class="text-slate-400 block text-[10px]">Lines of Code</span>
+            <span id="hudLoc" class="text-sm font-bold text-slate-200">980 LOC</span>
+          </div>
+        </div>
+
+        <div>
+          <span class="text-slate-400 block text-[10px] uppercase tracking-wider font-semibold">Blast Radius</span>
+          <span id="hudBlast" class="text-slate-300 block mt-0.5">15 direct calls, 4 reverse dependencies across BLL & DAL.</span>
+        </div>
+      </div>
+
+      <button id="hudActionBtn" class="w-full py-1.5 text-xs font-bold rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 hover:brightness-110 active:scale-95 transition shadow-lg">
+        Refactor & Isolate Component
+      </button>
+    </div>
+  </main>
+
+  <script>
+    // 1. DATA MODEL: Architecture Graph & Tree
+    const architectureData = [
+      {
+        id: "ui_1", name: "Dashboard.aspx", type: "aspx", tier: 0,
+        complexity: "Medium", loc: 450, debt: "medium",
+        calls: ["bll_1", "bll_2"], x: -180, y: -140
+      },
+      {
+        id: "ui_2", name: "UserProfile.aspx", type: "aspx", tier: 0,
+        complexity: "Low", loc: 320, debt: "low",
+        calls: ["bll_1"], x: 180, y: -140
+      },
+      {
+        id: "bll_1", name: "UserService.cs", type: "cs", tier: 1,
+        complexity: "High", loc: 980, debt: "high",
+        calls: ["dal_1"], x: -140, y: 0
+      },
+      {
+        id: "bll_2", name: "OrderProcessor.cs", type: "cs", tier: 1,
+        complexity: "High", loc: 750, debt: "high",
+        calls: ["dal_2"], x: 100, y: 0
+      },
+      {
+        id: "bll_3", name: "User.cs", type: "cs", tier: 1,
+        complexity: "Low", loc: 120, debt: "low",
+        calls: [], x: 220, y: 20
+      },
+      {
+        id: "dal_1", name: "dbo.Users", type: "sql", tier: 2,
+        complexity: "Low", loc: 85, debt: "low",
+        calls: [], x: -100, y: 160
+      },
+      {
+        id: "dal_2", name: "dbo.Orders", type: "sql", tier: 2,
+        complexity: "Low", loc: 110, debt: "low",
+        calls: [], x: 140, y: 160
+      }
+    ];
+
+    let selectedNode = architectureData[2]; // Default to UserService.cs
+
+    // 2. RENDER TREEVIEW IN LEFT PANEL
+    const treeContainer = document.getElementById('treeContainer');
+    function renderTree(filter = "") {
+      treeContainer.innerHTML = `
+        <div class="text-[11px] font-bold text-slate-400 mb-1 flex items-center justify-between">
+          <span>📁 src (Root Solution)</span>
+          <span class="text-[10px] text-cyan-400 font-mono">3,250 LOC</span>
+        </div>
+        
+        <!-- Presentation Layer -->
+        <div class="ml-2 border-l border-slate-800/80 pl-2 space-y-1">
+          <div class="text-[11px] font-semibold text-cyan-300 py-0.5">📂 Presentation Tier (.aspx)</div>
+          ${architectureData.filter(n => n.tier === 0).map(n => renderTreeItem(n)).join('')}
+        </div>
+
+        <!-- Business Logic Layer -->
+        <div class="ml-2 border-l border-slate-800/80 pl-2 space-y-1 mt-2">
+          <div class="text-[11px] font-semibold text-emerald-300 py-0.5">📂 Business Logic Tier (.cs)</div>
+          ${architectureData.filter(n => n.tier === 1).map(n => renderTreeItem(n)).join('')}
+        </div>
+
+        <!-- Database Layer -->
+        <div class="ml-2 border-l border-slate-800/80 pl-2 space-y-1 mt-2">
+          <div class="text-[11px] font-semibold text-indigo-300 py-0.5">📂 Database Entities (MSSQL)</div>
+          ${architectureData.filter(n => n.tier === 2).map(n => renderTreeItem(n)).join('')}
+        </div>
+      `;
+    }
+
+    function renderTreeItem(node) {
+      const isSelected = selectedNode && selectedNode.id === node.id;
+      const typeColor = node.type === 'aspx' ? 'text-cyan-400 bg-cyan-950/60 border-cyan-800' :
+                        node.type === 'cs' ? 'text-emerald-400 bg-emerald-950/60 border-emerald-800' :
+                        'text-indigo-400 bg-indigo-950/60 border-indigo-800';
+      const debtColor = node.debt === 'high' ? 'text-red-400 bg-red-950/40 border-red-900' :
+                        node.debt === 'medium' ? 'text-amber-400 bg-amber-950/40 border-amber-900' :
+                        'text-emerald-400 bg-emerald-950/40 border-emerald-900';
+
+      return `
+        <div onclick="selectNodeById('${node.id}')" 
+          class="flex items-center justify-between p-1.5 rounded-lg cursor-pointer transition border ${isSelected ? 'bg-cyan-500/10 border-cyan-500/50 shadow-sm' : 'border-transparent hover:bg-slate-900/60'}">
+          <div class="flex items-center gap-2">
+            <span class="text-[9px] font-mono px-1 py-0.5 rounded border uppercase ${typeColor}">${node.type}</span>
+            <span class="${isSelected ? 'text-white font-bold' : 'text-slate-300'}">${node.name}</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-[9px] px-1 py-0.5 rounded border font-mono ${debtColor}">${node.debt}</span>
+            <span class="text-[10px] text-slate-500 font-mono">${node.loc}L</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // 3. CANVAS 3D SPATIAL TIERED RENDERER
+    const canvas = document.getElementById('graphCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let isIso = true;
+    let particles = [];
+
+    function resizeCanvas() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = canvas.parentElement.clientWidth;
+      height = canvas.parentElement.clientHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Data Flow Pulses
+    function initParticles() {
+      particles = [];
+      for (let i = 0; i < 20; i++) {
+        particles.push({
+          sourceIndex: Math.floor(Math.random() * 2), // UI
+          progress: Math.random(),
+          speed: 0.006 + Math.random() * 0.006
+        });
+      }
+    }
+    initParticles();
+
+    // Projection calculation for Spatial 3D Tiers vs 2D
+    function project(x, y, tier) {
+      const cx = width * 0.48;
+      const cy = height * 0.50;
+
+      if (!isIso) {
+        return { x: cx + x * 1.5, y: cy + y * 1.5 };
+      }
+
+      // 3D Spatial Tiers Perspective Projection
+      const tierHeight = -150; // Distance between tiers
+      const tiltX = 0.85;
+      const tiltY = 0.42;
+
+      const px = cx + (x * tiltX);
+      const py = cy + (x * 0.15) + (tier * tierHeight * 0.9) + (y * tiltY);
+      return { x: px, y: py };
+    }
+
+    // Main Draw Loop
+    let time = 0;
+    function draw() {
+      ctx.clearRect(0, 0, width, height);
+      time += 0.02;
+
+      // 1. Draw 3D Tier Glass Planes
+      if (isIso) {
+        const tierNames = [
+          { name: "UI Presentation Tier (.aspx)", tier: 0, color: "rgba(0, 242, 254, 0.06)", stroke: "rgba(0, 242, 254, 0.4)" },
+          { name: "Business Logic Tier (.cs)", tier: 1, color: "rgba(16, 185, 129, 0.06)", stroke: "rgba(16, 185, 129, 0.4)" },
+          { name: "Database Tables (MSSQL)", tier: 2, color: "rgba(99, 102, 241, 0.06)", stroke: "rgba(99, 102, 241, 0.4)" }
+        ];
+
+        tierNames.forEach(t => {
+          const p1 = project(-320, -120, t.tier);
+          const p2 = project(320, -120, t.tier);
+          const p3 = project(320, 120, t.tier);
+          const p4 = project(-320, 120, t.tier);
+
+          // Glass Plane
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.lineTo(p3.x, p3.y);
+          ctx.lineTo(p4.x, p4.y);
+          ctx.closePath();
+          ctx.fillStyle = t.color;
+          ctx.fill();
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = t.stroke;
+          ctx.stroke();
+
+          // Tier Label
+          ctx.fillStyle = t.stroke;
+          ctx.font = "bold 11px system-ui";
+          ctx.fillText(t.name, p1.x - 10, p1.y - 12);
+        });
+      }
+
+      // 2. Draw Curved Glowing Beams (Edges)
+      architectureData.forEach(source => {
+        source.calls.forEach(targetId => {
+          const target = architectureData.find(n => n.id === targetId);
+          if (!target) return;
+
+          const pSource = project(source.x, source.y, source.tier);
+          const pTarget = project(target.x, target.y, target.tier);
+
+          const isConnected = selectedNode && (source.id === selectedNode.id || target.id === selectedNode.id);
+
+          ctx.beginPath();
+          ctx.moveTo(pSource.x, pSource.y);
+          // Curved Bezier Beams
+          const cpX = (pSource.x + pTarget.x) / 2;
+          const cpY = (pSource.y + pTarget.y) / 2 - (isIso ? 30 : 0);
+          ctx.quadraticCurveTo(cpX, cpY, pTarget.x, pTarget.y);
+
+          ctx.lineWidth = isConnected ? 3.5 : 1.5;
+          ctx.strokeStyle = isConnected ? "rgba(0, 242, 254, 0.9)" : "rgba(56, 189, 248, 0.25)";
+          ctx.stroke();
+
+          // Flow Pulse Particle along beam
+          const tPulse = (time * 0.8) % 1.0;
+          const px = (1-tPulse)*(1-tPulse)*pSource.x + 2*(1-tPulse)*tPulse*cpX + tPulse*tPulse*pTarget.x;
+          const py = (1-tPulse)*(1-tPulse)*pSource.y + 2*(1-tPulse)*tPulse*cpY + tPulse*tPulse*pTarget.y;
+
+          ctx.beginPath();
+          ctx.arc(px, py, isConnected ? 4.5 : 3, 0, Math.PI * 2);
+          ctx.fillStyle = isConnected ? "#10b981" : "#00f2fe";
+          ctx.shadowColor = "#00f2fe";
+          ctx.shadowBlur = 10;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        });
+      });
+
+      // 3. Draw Volumetric Nodes
+      architectureData.forEach(node => {
+        const p = project(node.x, node.y, node.tier);
+        const isSelected = selectedNode && selectedNode.id === node.id;
+
+        // Outer glow
+        if (isSelected) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 22, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(0, 242, 254, 0.25)";
+          ctx.fill();
+        }
+
+        // 3D Glass Node Body
+        ctx.beginPath();
+        ctx.roundRect(p.x - 45, p.y - 14, 90, 28, 8);
+        ctx.fillStyle = isSelected ? "rgba(15, 23, 42, 0.95)" : "rgba(15, 23, 42, 0.75)";
+        ctx.fill();
+        ctx.lineWidth = isSelected ? 2.5 : 1.2;
+        ctx.strokeStyle = isSelected ? "#00f2fe" : "rgba(0, 242, 254, 0.4)";
+        ctx.stroke();
+
+        // Node Title
+        ctx.fillStyle = isSelected ? "#ffffff" : "#cbd5e1";
+        ctx.font = isSelected ? "bold 11px system-ui" : "10px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText(node.name, p.x, p.y + 3);
+      });
+
+      requestAnimationFrame(draw);
+    }
+    draw();
+
+    // 4. NODE SELECTION LOGIC
+    function selectNodeById(id) {
+      selectedNode = architectureData.find(n => n.id === id) || null;
+      renderTree();
+      updateHud();
+    }
+
+    function updateHud() {
+      if (!selectedNode) return;
+      document.getElementById('hudTitle').textContent = selectedNode.name;
+      document.getElementById('hudBadge').textContent = selectedNode.type.toUpperCase();
+      document.getElementById('hudComplexity').textContent = `v(G) = ${selectedNode.complexity === 'High' ? '25' : selectedNode.complexity === 'Medium' ? '14' : '4'}`;
+      document.getElementById('hudLoc').textContent = `${selectedNode.loc} LOC`;
+      document.getElementById('hudDebtBadge').textContent = `${selectedNode.debt} Debt`;
+
+      let chain = selectedNode.name;
+      if (selectedNode.tier === 0 && selectedNode.calls.length > 0) {
+        chain = `${selectedNode.name} → ${selectedNode.calls.join(', ')}`;
+      } else if (selectedNode.tier === 1) {
+        chain = `Dashboard.aspx → ${selectedNode.name} → ${selectedNode.calls.join(', ') || 'None'}`;
+      }
+      document.getElementById('hudCallChain').textContent = chain;
+    }
+
+    // Canvas click to select node
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      architectureData.forEach(node => {
+        const p = project(node.x, node.y, node.tier);
+        if (clickX >= p.x - 45 && clickX <= p.x + 45 && clickY >= p.y - 14 && clickY <= p.y + 14) {
+          selectNodeById(node.id);
+        }
+      });
+    });
+
+    // Toggle Buttons
+    document.getElementById('btnIso').addEventListener('click', () => {
+      isIso = true;
+      document.getElementById('btnIso').className = "px-3 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-medium";
+      document.getElementById('btnFlat').className = "px-3 py-1 rounded-lg text-slate-400 hover:text-white transition font-medium";
+    });
+
+    document.getElementById('btnFlat').addEventListener('click', () => {
+      isIso = false;
+      document.getElementById('btnFlat').className = "px-3 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-medium";
+      document.getElementById('btnIso').className = "px-3 py-1 rounded-lg text-slate-400 hover:text-white transition font-medium";
+    });
+
+    document.getElementById('btnPulse').addEventListener('click', () => {
+      initParticles();
+    });
+
+    renderTree();
+    updateHud();
+  </script>
+</body>
+</html>

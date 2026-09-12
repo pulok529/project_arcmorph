@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import {
   DATASETS_MAP,
   FORM_DEPENDENCY_DATASET,
+  ARCMORPH_PLATFORM_DATASET,
+  PROJECT_TOPOLOGY_DATASETS,
   GraphNode,
   ClusterType
 } from '../data/architectureTopologyData';
@@ -14,13 +16,17 @@ import { DecouplingPlanModal } from '../components/graph/DecouplingPlanModal';
 
 export const ArchitectureGraphPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const projectId = id || 'proj_1788642109465';
+  const projectId = id || 'proj_arcmorph_2026';
+
+  // Project Selection: 'arcmorph' | 'bornomala'
+  const [selectedProjectKey, setSelectedProjectKey] = useState<'arcmorph' | 'bornomala'>('arcmorph');
+  const [projectMenuOpen, setProjectMenuOpen] = useState<boolean>(false);
 
   // Active View Tab: 'form_dependency' | 'database_erd' | 'user_journey'
   const [activeView, setActiveView] = useState<'form_dependency' | 'database_erd' | 'user_journey'>('form_dependency');
 
   // Selected Node
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>('form-student-admission');
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>('arcmorph-core');
 
   // Filter & Search
   const [clusterFilter, setClusterFilter] = useState<ClusterType>('All');
@@ -33,10 +39,17 @@ export const ArchitectureGraphPage: React.FC = () => {
   const [inspectorOpen, setInspectorOpen] = useState<boolean>(true);
   const [decouplingModalOpen, setDecouplingModalOpen] = useState<boolean>(false);
 
-  // Active dataset
+  // Active dataset based on selected project and view tab
   const currentDataset = useMemo(() => {
+    if (selectedProjectKey === 'arcmorph') {
+      return ARCMORPH_PLATFORM_DATASET;
+    }
+    const projDatasets = PROJECT_TOPOLOGY_DATASETS[selectedProjectKey];
+    if (projDatasets && projDatasets[activeView]) {
+      return projDatasets[activeView];
+    }
     return DATASETS_MAP[activeView] || FORM_DEPENDENCY_DATASET;
-  }, [activeView]);
+  }, [selectedProjectKey, activeView]);
 
   // Selected node object
   const selectedNode = useMemo(() => {
@@ -50,11 +63,18 @@ export const ArchitectureGraphPage: React.FC = () => {
   };
 
   const handleResetView = () => {
-    setSelectedNodeId(null);
+    setSelectedNodeId(selectedProjectKey === 'arcmorph' ? 'arcmorph-core' : 'form-student-admission');
     setClusterFilter('All');
     setSearchQuery('');
     setBlastRadius(2);
     setIsPhysicsRunning(true);
+  };
+
+  const handleProjectSwitch = (key: 'arcmorph' | 'bornomala') => {
+    setSelectedProjectKey(key);
+    setSelectedNodeId(key === 'arcmorph' ? 'arcmorph-core' : 'form-student-admission');
+    setClusterFilter('All');
+    setProjectMenuOpen(false);
   };
 
   return (
@@ -69,11 +89,11 @@ export const ArchitectureGraphPage: React.FC = () => {
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)'
         }}
       >
-        {/* Left: Brand & Back to Project */}
+        {/* Left: Brand & Dynamic Project Selector */}
         <div className="d-flex align-items-center gap-3">
-          <Link to={`/projects/${projectId}`} className="btn btn-sm btn-outline-dark text-light border-secondary d-flex align-items-center gap-1">
+          <Link to="/" className="btn btn-sm btn-outline-dark text-light border-secondary d-flex align-items-center gap-1">
             <i className="ti ti-arrow-left"></i>
-            <span className="d-none d-sm-inline">Back to Cockpit</span>
+            <span className="d-none d-sm-inline">Dashboard</span>
           </Link>
 
           <div className="d-flex align-items-center gap-2">
@@ -83,12 +103,56 @@ export const ArchitectureGraphPage: React.FC = () => {
             </span>
           </div>
 
-          <span className="badge bg-dark text-cyan border border-cyan-subtle font-monospace fs-11 d-none d-md-inline">
-            Bornomala Monolith ERP
-          </span>
+          {/* Dynamic Project Selector Dropdown */}
+          <div className="position-relative">
+            <button
+              type="button"
+              className="btn btn-sm btn-dark border-cyan text-cyan d-flex align-items-center gap-1.5 fs-12 font-monospace shadow-sm"
+              onClick={() => setProjectMenuOpen(!projectMenuOpen)}
+              title="Switch Target Analyzed Project"
+            >
+              <i className="ti ti-folder-check"></i>
+              <span>{selectedProjectKey === 'arcmorph' ? 'ArcMorph Platform 2.0 (Active)' : 'Bornomala ERP (Legacy Monolith)'}</span>
+              <i className="ti ti-chevron-down fs-10"></i>
+            </button>
+
+            {projectMenuOpen && (
+              <div 
+                className="dropdown-menu show shadow-lg border border-secondary p-1 fs-12 bg-dark rounded"
+                style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1050, minWidth: 280 }}
+              >
+                <div className="px-2 py-1 text-muted text-uppercase fs-10 fw-bold border-bottom border-secondary">
+                  Target Analyzed Project
+                </div>
+                <button
+                  type="button"
+                  className={`dropdown-item py-2 px-2 rounded mb-1 text-light d-flex align-items-center justify-content-between ${selectedProjectKey === 'arcmorph' ? 'active bg-cyan text-dark fw-bold' : ''}`}
+                  onClick={() => handleProjectSwitch('arcmorph')}
+                >
+                  <div>
+                    <div className="fw-bold">ArcMorph Platform 2.0</div>
+                    <small className={selectedProjectKey === 'arcmorph' ? 'text-dark opacity-75' : 'text-muted'}>Microservices, Qwen Orchestrator & Vault</small>
+                  </div>
+                  <span className="badge bg-success-subtle text-success fs-10">Active</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={`dropdown-item py-2 px-2 rounded text-light d-flex align-items-center justify-content-between ${selectedProjectKey === 'bornomala' ? 'active bg-cyan text-dark fw-bold' : ''}`}
+                  onClick={() => handleProjectSwitch('bornomala')}
+                >
+                  <div>
+                    <div className="fw-bold">Bornomala Monolith ERP</div>
+                    <small className={selectedProjectKey === 'bornomala' ? 'text-dark opacity-75' : 'text-muted'}>ASP.NET WebForms & MSSQL Monolith</small>
+                  </div>
+                  <span className="badge bg-warning-subtle text-warning fs-10">Legacy</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Center: Perspective Tabs matching reference image */}
+        {/* Center: Perspective Tabs */}
         <div className="d-flex align-items-center gap-1 p-1 rounded border border-dark bg-black-subtle">
           <button
             type="button"
@@ -99,7 +163,7 @@ export const ArchitectureGraphPage: React.FC = () => {
             }`}
             onClick={() => {
               setActiveView('database_erd');
-              setSelectedNodeId('tbl-student-erd');
+              if (selectedProjectKey === 'bornomala') setSelectedNodeId('tbl-student-erd');
             }}
           >
             <i className="ti ti-database"></i> Database ERD
@@ -114,10 +178,10 @@ export const ArchitectureGraphPage: React.FC = () => {
             }`}
             onClick={() => {
               setActiveView('form_dependency');
-              setSelectedNodeId('form-student-admission');
+              if (selectedProjectKey === 'bornomala') setSelectedNodeId('form-student-admission');
             }}
           >
-            <i className="ti ti-binary-tree"></i> Form Dependency Tree
+            <i className="ti ti-binary-tree"></i> System Dependencies
           </button>
 
           <button
@@ -129,10 +193,10 @@ export const ArchitectureGraphPage: React.FC = () => {
             }`}
             onClick={() => {
               setActiveView('user_journey');
-              setSelectedNodeId('uj-admission-form');
+              if (selectedProjectKey === 'bornomala') setSelectedNodeId('uj-admission-form');
             }}
           >
-            <i className="ti ti-git-fork"></i> User Journey State Machine
+            <i className="ti ti-git-fork"></i> Journey State Machine
           </button>
         </div>
 
@@ -161,9 +225,9 @@ export const ArchitectureGraphPage: React.FC = () => {
 
           {/* User Profile Avatar */}
           <div
-            className="rounded-circle d-flex align-items-center justify-content-center text-dark fw-bold fs-12"
+            className="rounded-circle d-flex align-items-center justify-content-center text-dark fw-bold fs-12 border border-cyan"
             style={{ width: 28, height: 28, background: 'linear-gradient(135deg, #00f2fe 0%, #3b82f6 100%)' }}
-            title="Logged in as Admin"
+            title="Logged in as SuperAdmin"
           >
             A
           </div>
@@ -236,3 +300,5 @@ export const ArchitectureGraphPage: React.FC = () => {
     </div>
   );
 };
+
+export default ArchitectureGraphPage;

@@ -14,6 +14,27 @@ interface SearchResultItem {
   actionText?: string;
 }
 
+interface UIDestination {
+  name: string;
+  path: string;
+  icon: string;
+  desc: string;
+  category: string;
+}
+
+const UI_DESTINATIONS: UIDestination[] = [
+  { name: 'Dashboard Overview', path: '/', icon: 'ti-layout-dashboard', desc: 'System modernization overview, health metrics, and active pipelines.', category: 'Core Platform' },
+  { name: 'Architecture Graph (2D/3D)', path: '/graph', icon: 'ti-chart-dots-3', desc: 'Interactive 2D/3D visualization of monolith dependencies, database ERD, and state machines.', category: 'Visualization' },
+  { name: 'Universal OCR Studio & Vault', path: '/ocr-studio', icon: 'ti-scan', desc: 'Universal document OCR extractor for CVs, Passports, and technical blueprints.', category: 'Intelligence' },
+  { name: 'Master Terminal & Subagents', path: '/terminal', icon: 'ti-terminal-2', desc: 'Interactive multi-agent command console with parallel telemetry streams.', category: 'Command Console' },
+  { name: 'MorphHub Pipeline Projects', path: '/morph-hub', icon: 'ti-folder-check', desc: 'Repository management, modernization checkpoints, and task history.', category: 'Core Platform' },
+  { name: 'Notification Hub & Audit Feed', path: '/notifications', icon: 'ti-bell', desc: 'Real-time operational alerts, Claude 3.7 critiques, and task completion notices.', category: 'Intelligence & Audit' },
+  { name: 'Engineer Profile & CV Generator', path: '/profile', icon: 'ti-id-badge-2', desc: 'Engineer portfolio, verified credentials, publication records, and print-ready CV export.', category: 'Identity & CV' },
+  { name: 'SuperUser Control Hub', path: '/users', icon: 'ti-shield-lock', desc: 'Role-based access control, user creation, and granular page permissions.', category: 'Administration' },
+  { name: 'System, Models & Security Settings', path: '/settings', icon: 'ti-settings', desc: 'AI inference registry, Paces visual style customizer, and inactivity timeouts.', category: 'Administration' },
+  { name: 'Cybernetic Lock Screen', path: '/lockscreen', icon: 'ti-lock', desc: 'Session security lock with PIN protection preserving active background tasks.', category: 'Security' }
+];
+
 const CORPUS_INDEX: SearchResultItem[] = [
   {
     id: 'res_1',
@@ -99,9 +120,9 @@ const CORPUS_INDEX: SearchResultItem[] = [
     filePath: 'ocr_vault/ocrproject_1789216758/detail.md',
     snippet: 'East West University | Bachelor of Science in Computer Science and Engineering\nGraduated: May 2023 | Thesis: Microservice Fault-Tolerance and Resiliency',
     relevance: 79,
-    tags: ['BSc CSE', 'Academic Transcript', 'East West University'],
+    tags: ['Academic Transcript', 'B.Sc. CSE', 'East West University'],
     actionLink: '/profile',
-    actionText: 'View in Profile'
+    actionText: 'Inspect Credentials'
   }
 ];
 
@@ -112,47 +133,67 @@ export const SearchResultsPage: React.FC = () => {
 
   const [query, setQuery] = useState(initialQuery);
   const [activeCategory, setActiveCategory] = useState<string>('All');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 4;
 
   useEffect(() => {
-    const q = searchParams.get('q');
-    if (q !== null && q !== query) {
-      setQuery(q);
-      setCurrentPage(1);
-    }
-  }, [searchParams]);
+    setQuery(initialQuery);
+    setCurrentPage(1);
+  }, [initialQuery]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSearchParams(query ? { q: query } : {});
-    setCurrentPage(1);
+    if (query.trim()) {
+      setSearchParams({ q: query.trim() });
+    } else {
+      setSearchParams({});
+    }
   };
 
-  const filteredItems = CORPUS_INDEX.filter(item => {
-    if (activeCategory !== 'All' && item.category !== activeCategory) {
-      return false;
-    }
-    if (!query.trim()) return true;
-    const cleanQ = query.toLowerCase();
+  // Find matching UI Destinations
+  const matchedUIDestinations = UI_DESTINATIONS.filter(d => {
+    if (!query.trim()) return false;
+    const q = query.toLowerCase();
     return (
-      item.title.toLowerCase().includes(cleanQ) ||
-      item.snippet.toLowerCase().includes(cleanQ) ||
-      item.filePath.toLowerCase().includes(cleanQ) ||
-      item.tags.some(t => t.toLowerCase().includes(cleanQ))
+      d.name.toLowerCase().includes(q) ||
+      d.desc.toLowerCase().includes(q) ||
+      d.category.toLowerCase().includes(q) ||
+      (q === 'ocr' && d.path === '/ocr-studio') ||
+      (q === 'cv' && d.path === '/profile') ||
+      (q === 'terminal' && d.path === '/terminal') ||
+      (q === 'graph' && d.path === '/graph') ||
+      (q === 'settings' && d.path === '/settings') ||
+      (q === 'users' && d.path === '/users') ||
+      (q === 'lock' && d.path === '/lockscreen')
     );
   });
 
-  const totalPages = Math.ceil(filteredItems.length / itemsPerPage) || 1;
-  const paginatedItems = filteredItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  // Filter items
+  const filteredItems = CORPUS_INDEX.filter(item => {
+    const matchesCategory = activeCategory === 'All' || item.category === activeCategory;
+    if (!matchesCategory) return false;
 
-  const getCategoryBadge = (cat: string) => {
+    if (!query.trim()) return true;
+    const q = query.toLowerCase();
+    return (
+      item.title.toLowerCase().includes(q) ||
+      item.filePath.toLowerCase().includes(q) ||
+      item.snippet.toLowerCase().includes(q) ||
+      item.tags.some(t => t.toLowerCase().includes(q))
+    );
+  });
+
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedItems = filteredItems.slice(startIndex, startIndex + itemsPerPage);
+
+  const getCategoryBadgeClass = (cat: string) => {
     switch (cat) {
       case 'Code AST': return 'badge bg-info-subtle text-info border border-info-subtle';
       case 'Database Schema': return 'badge bg-warning-subtle text-warning border border-warning-subtle';
       case 'Blueprint': return 'badge bg-cyan-subtle text-cyan border border-cyan-subtle';
       case 'OCR Vault': return 'badge bg-success-subtle text-success border border-success-subtle';
-      default: return 'badge bg-secondary-subtle text-light border border-secondary';
+      default: return 'badge bg-secondary-subtle text-body border border-secondary-subtle';
     }
   };
 
@@ -162,17 +203,17 @@ export const SearchResultsPage: React.FC = () => {
 
       <div className="module-content-body">
         {/* Search Bar Card */}
-        <div className="card mb-4 border-dark shadow-sm">
+        <div className="card mb-4 border-secondary-subtle shadow-sm">
           <div className="card-body p-4">
             <form onSubmit={handleSearchSubmit}>
               <div className="input-group input-group-lg">
-                <span className="input-group-text bg-dark border-secondary text-cyan">
+                <span className="input-group-text bg-body-tertiary border-secondary-subtle text-cyan">
                   <i className="ti ti-search fs-18"></i>
                 </span>
                 <input
                   type="text"
-                  className="form-control bg-dark border-secondary text-light fs-14"
-                  placeholder="Search code AST, SQL tables, Roslyn symbols, OCR documents, or architectural blueprints..."
+                  className="form-control bg-body border-secondary-subtle text-body fs-14"
+                  placeholder="Search code AST, SQL tables, UI features, OCR documents, or architectural blueprints..."
                   value={query}
                   onChange={e => setQuery(e.target.value)}
                 />
@@ -183,13 +224,13 @@ export const SearchResultsPage: React.FC = () => {
             </form>
 
             {/* Category Filter Tabs */}
-            <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-3 pt-2 border-top border-dark">
+            <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-3 pt-2 border-top border-secondary-subtle">
               <div className="btn-group" role="group">
                 {['All', 'Code AST', 'Database Schema', 'Blueprint', 'OCR Vault'].map((cat) => (
                   <button
                     key={cat}
                     type="button"
-                    className={`btn btn-sm ${activeCategory === cat ? 'btn-cyan text-dark fw-bold' : 'btn-outline-secondary text-light'} fs-12`}
+                    className={`btn btn-sm ${activeCategory === cat ? 'btn-cyan text-dark fw-bold' : 'btn-outline-secondary text-body'} fs-12`}
                     onClick={() => { setActiveCategory(cat); setCurrentPage(1); }}
                   >
                     {cat}
@@ -204,12 +245,50 @@ export const SearchResultsPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Direct UI Destination Banner if Query Matches Platform Feature */}
+        {matchedUIDestinations.length > 0 && (
+          <div className="card mb-4 border-cyan glow-cyan bg-body-tertiary">
+            <div className="card-header border-bottom border-secondary-subtle d-flex align-items-center justify-content-between">
+              <div className="d-flex align-items-center gap-2">
+                <i className="ti ti-compass text-cyan fs-18"></i>
+                <h6 className="card-title mb-0 fw-bold text-body">Direct Platform UI Destination Found</h6>
+              </div>
+              <span className="badge bg-cyan text-dark fw-bold fs-10">Direct Navigation</span>
+            </div>
+            <div className="card-body p-3">
+              <div className="row g-3">
+                {matchedUIDestinations.map((dest, idx) => (
+                  <div key={idx} className="col-md-6 col-lg-4">
+                    <div className="p-3 border border-secondary-subtle rounded bg-body h-100 d-flex flex-column justify-content-between shadow-sm hover-border-cyan">
+                      <div>
+                        <div className="d-flex align-items-center gap-2 mb-2">
+                          <div className="rounded p-1.5 bg-primary-subtle text-primary">
+                            <i className={`ti ${dest.icon} fs-18`}></i>
+                          </div>
+                          <div>
+                            <h6 className="mb-0 fw-bold text-body fs-13">{dest.name}</h6>
+                            <span className="badge bg-secondary-subtle text-muted fs-10">{dest.category}</span>
+                          </div>
+                        </div>
+                        <p className="fs-12 text-muted mb-3">{dest.desc}</p>
+                      </div>
+                      <Link to={dest.path} className="btn btn-sm btn-outline-cyan fw-bold w-100 d-flex align-items-center justify-content-center gap-1">
+                        <span>Open Feature UI</span> <i className="ti ti-arrow-right"></i>
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Results List */}
         <div className="d-flex flex-column gap-3 mb-4">
           {paginatedItems.length === 0 ? (
-            <div className="card p-5 text-center border-dark bg-dark">
+            <div className="card p-5 text-center border-secondary-subtle bg-body">
               <i className="ti ti-search-off fs-40 text-muted mb-2"></i>
-              <h5 className="text-light">No Matching Entities Found</h5>
+              <h5 className="text-body">No Matching Entities Found</h5>
               <p className="text-muted fs-13 mb-3">
                 Try searching for terms like <code className="text-cyan">StudentAdmission</code>, <code className="text-cyan">tblFeesCollection</code>, <code className="text-cyan">Passport</code>, or <code className="text-cyan">Clean Architecture</code>.
               </p>
@@ -221,47 +300,47 @@ export const SearchResultsPage: React.FC = () => {
             </div>
           ) : (
             paginatedItems.map((item) => (
-              <div key={item.id} className="card border-dark shadow-sm">
-                <div className="card-body p-4">
-                  <div className="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-2">
-                    <div>
-                      <div className="d-flex align-items-center gap-2 mb-1">
-                        <span className={getCategoryBadge(item.category)}>{item.category}</span>
-                        <h6 className="mb-0 fw-bold text-white fs-15">{item.title}</h6>
-                      </div>
-                      <div className="text-muted font-monospace fs-11">
-                        <i className="ti ti-file-code me-1 text-cyan"></i>
-                        {item.filePath}
-                      </div>
-                    </div>
+              <div key={item.id} className="card border-secondary-subtle shadow-sm hover-border-cyan">
+                <div className="card-header py-2.5 px-3 border-bottom border-secondary-subtle bg-body-tertiary d-flex align-items-center justify-content-between flex-wrap gap-2">
+                  <div className="d-flex align-items-center gap-2">
+                    <span className={getCategoryBadgeClass(item.category)}>{item.category}</span>
+                    <h6 className="card-title mb-0 fw-bold text-body fs-14">{item.title}</h6>
+                  </div>
+                  <div className="d-flex align-items-center gap-2">
+                    <span className="badge bg-body border border-secondary-subtle text-cyan fs-11 font-monospace">
+                      {item.relevance}% Match
+                    </span>
+                  </div>
+                </div>
 
-                    <div className="d-flex align-items-center gap-2">
-                      <div className="text-end">
-                        <span className="text-muted fs-10 d-block">Relevance</span>
-                        <span className="fw-bold text-success font-monospace fs-12">{item.relevance}%</span>
-                      </div>
-                      {item.actionLink && (
-                        <Link
-                          to={item.actionLink}
-                          className="btn btn-sm btn-outline-info d-flex align-items-center gap-1 fs-12"
-                        >
-                          <i className="ti ti-arrow-right"></i> {item.actionText || 'Inspect'}
-                        </Link>
-                      )}
-                    </div>
+                <div className="card-body p-3">
+                  <div className="d-flex align-items-center gap-1 text-muted fs-11 mb-2 font-monospace">
+                    <i className="ti ti-file-code text-cyan"></i>
+                    <span>{item.filePath}</span>
                   </div>
 
-                  <pre className="p-3 rounded bg-dark border border-secondary font-monospace fs-12 text-light mb-3" style={{ whiteSpace: 'pre-wrap' }}>
-                    {item.snippet}
+                  <pre className="p-2.5 rounded bg-body-secondary border border-secondary-subtle text-body font-monospace fs-12 mb-3 overflow-x-auto" style={{ maxHeight: '160px' }}>
+                    <code>{item.snippet}</code>
                   </pre>
 
-                  <div className="d-flex flex-wrap gap-1 align-items-center">
-                    <span className="text-muted fs-11 me-1"><i className="ti ti-tag me-1"></i> Tags:</span>
-                    {item.tags.map(t => (
-                      <span key={t} className="badge bg-dark border border-secondary text-info fs-10">
-                        {t}
-                      </span>
-                    ))}
+                  <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div className="d-flex align-items-center gap-1 flex-wrap">
+                      {item.tags.map((tag, tIdx) => (
+                        <span key={tIdx} className="badge bg-body-tertiary text-muted border border-secondary-subtle fs-10 font-monospace">
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+
+                    {item.actionLink && (
+                      <Link
+                        to={item.actionLink}
+                        className="btn btn-sm btn-outline-cyan fs-11 fw-bold d-flex align-items-center gap-1"
+                      >
+                        <span>{item.actionText || 'Inspect Entity'}</span>
+                        <i className="ti ti-arrow-right"></i>
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>
@@ -269,42 +348,40 @@ export const SearchResultsPage: React.FC = () => {
           )}
         </div>
 
-        {/* Pagination Card */}
+        {/* Pagination Bar */}
         {totalPages > 1 && (
-          <div className="card border-dark">
-            <div className="card-body p-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
-              <span className="text-muted fs-12">
-                Showing Page <strong className="text-light">{currentPage}</strong> of <strong className="text-light">{totalPages}</strong>
-              </span>
+          <div className="d-flex justify-content-between align-items-center border-top border-secondary-subtle pt-3">
+            <small className="text-muted fs-12">
+              Showing page <strong className="text-body">{currentPage}</strong> of <strong className="text-body">{totalPages}</strong>
+            </small>
 
-              <div className="d-flex gap-2">
+            <div className="btn-group" role="group">
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+              >
+                &larr; Previous
+              </button>
+              {Array.from({ length: totalPages }).map((_, i) => (
                 <button
+                  key={i}
                   type="button"
-                  className="btn btn-sm btn-dark border-secondary text-light"
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  className={`btn btn-sm ${currentPage === i + 1 ? 'btn-cyan text-dark fw-bold' : 'btn-outline-secondary text-body'}`}
+                  onClick={() => setCurrentPage(i + 1)}
                 >
-                  <i className="ti ti-chevron-left me-1"></i> Previous
+                  {i + 1}
                 </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-                  <button
-                    key={p}
-                    type="button"
-                    className={`btn btn-sm ${p === currentPage ? 'btn-cyan text-dark fw-bold' : 'btn-dark border-secondary text-light'}`}
-                    onClick={() => setCurrentPage(p)}
-                  >
-                    {p}
-                  </button>
-                ))}
-                <button
-                  type="button"
-                  className="btn btn-sm btn-dark border-secondary text-light"
-                  disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                >
-                  Next <i className="ti ti-chevron-right ms-1"></i>
-                </button>
-              </div>
+              ))}
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+              >
+                Next &rarr;
+              </button>
             </div>
           </div>
         )}

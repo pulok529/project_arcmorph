@@ -560,3 +560,161 @@ export const DATASETS_MAP: Record<string, GraphDataset> = {
   database_erd: DATABASE_ERD_DATASET,
   user_journey: USER_JOURNEY_DATASET
 };
+
+export const ARCMORPH_PLATFORM_DATASET: GraphDataset = {
+  viewId: 'form_dependency',
+  viewTitle: 'ArcMorph Platform 2.0 Microservices Architecture',
+  nodes: [
+    {
+      id: 'arcmorph-core',
+      name: 'ArcMorph Core Platform',
+      type: 'core',
+      cluster: 'Core',
+      complexity: 25,
+      loc: 38400,
+      risk: 'Low',
+      file: 'arcmorph_web/src/App.tsx',
+      upstream: [],
+      downstream: [
+        { id: 'frontend-spa', name: 'Vite React UI Shell', type: 'service' },
+        { id: 'terminal-ipc', name: 'Master Terminal IPC', type: 'gateway' },
+        { id: 'ocr-vault-engine', name: 'Universal OCR Engine', type: 'worker' }
+      ],
+      codeSnippet: '// ArcMorph Platform 2.0 Core\nexport const App: React.FC = () => {\n  return <AppProviders><AppRouter /></AppProviders>;\n};'
+    },
+    {
+      id: 'frontend-spa',
+      name: 'Vite React UI Shell (Paces Native)',
+      type: 'service',
+      cluster: 'Core',
+      complexity: 30,
+      loc: 18200,
+      risk: 'Low',
+      file: 'arcmorph_web/src/components/layout/AppLayout.tsx',
+      upstream: [{ id: 'arcmorph-core', name: 'ArcMorph Core Platform', type: 'core' }],
+      downstream: [
+        { id: 'docker-container', name: 'Docker Container :3005:80', type: 'service' },
+        { id: 'session-guard', name: 'Session Guard & PIN Lock', type: 'service' }
+      ],
+      codeSnippet: '<div className="wrapper"><Topbar /><Sidebar /><Outlet /><ThemeCustomizer /></div>'
+    },
+    {
+      id: 'docker-container',
+      name: 'Docker Web Container (project_arcmorph)',
+      type: 'service',
+      cluster: 'Infrastructure',
+      complexity: 15,
+      loc: 120,
+      risk: 'Low',
+      file: 'docker-compose.yml',
+      upstream: [{ id: 'frontend-spa', name: 'Vite React UI Shell', type: 'service' }],
+      downstream: [{ id: 'mongodb-nosql', name: 'MongoDB NoSQL Daemon', type: 'table' }],
+      codeSnippet: 'ports: ["3005:80"]\nimage: arcmorph:web\ncontainer_name: project_arcmorph'
+    },
+    {
+      id: 'mongodb-nosql',
+      name: 'MongoDB NoSQL & Audit Logger',
+      type: 'table',
+      cluster: 'Database',
+      complexity: 28,
+      loc: 1400,
+      risk: 'Low',
+      file: 'arcmorph_web/src/context/AuthContext.tsx',
+      upstream: [{ id: 'docker-container', name: 'Docker Web Container', type: 'service' }],
+      downstream: [],
+      codeSnippet: '// MongoDB NoSQL User & Permission Store\n{ _id: ObjectId("..."), username: "superadmin", permissions: ["*"] }'
+    },
+    {
+      id: 'terminal-ipc',
+      name: 'Master Terminal WebSocket IPC',
+      type: 'gateway',
+      cluster: 'Infrastructure',
+      complexity: 42,
+      loc: 2800,
+      risk: 'Medium',
+      file: 'arcmorph_web/src/pages/TerminalPage.tsx',
+      upstream: [{ id: 'arcmorph-core', name: 'ArcMorph Core Platform', type: 'core' }],
+      downstream: [
+        { id: 'qwen-orchestrator', name: 'Qwen-2.5-3B Orchestrator', type: 'service' },
+        { id: 'subagent-swarm', name: 'Subagent Swarm Workers', type: 'worker' }
+      ],
+      codeSnippet: 'const handleCommand = (cmd: string) => {\n  if (cmd.includes("morph")) spawnSubagents(targets);\n};'
+    },
+    {
+      id: 'qwen-orchestrator',
+      name: 'Qwen-2.5-3B Local Orchestrator',
+      type: 'service',
+      cluster: 'Core',
+      complexity: 35,
+      loc: 950,
+      risk: 'Low',
+      file: 'arcmorph_web/src/context/ModelContext.tsx',
+      upstream: [{ id: 'terminal-ipc', name: 'Master Terminal IPC', type: 'gateway' }],
+      downstream: [{ id: 'subagent-swarm', name: 'Subagent Swarm Workers', type: 'worker' }],
+      codeSnippet: '// Local inference orchestrator\nendpoint: "http://localhost:11434/v1", context: "32k", vram: "4.2 GB"'
+    },
+    {
+      id: 'subagent-swarm',
+      name: 'Subagent Swarm (AST, Refactor, OCR)',
+      type: 'worker',
+      cluster: 'Core',
+      complexity: 45,
+      loc: 3600,
+      risk: 'Medium',
+      file: 'arcmorph_web/src/context/TaskContext.tsx',
+      upstream: [{ id: 'qwen-orchestrator', name: 'Qwen-2.5-3B Orchestrator', type: 'service' }],
+      downstream: [{ id: 'ocr-vault-engine', name: 'Universal OCR Engine', type: 'worker' }],
+      codeSnippet: 'const subagents = ["AST-Parser", "Refactor-Agent", "OCR-Worker"];'
+    },
+    {
+      id: 'ocr-vault-engine',
+      name: 'Universal OCR Studio & Vault Storage',
+      type: 'worker',
+      cluster: 'Core',
+      complexity: 32,
+      loc: 4100,
+      risk: 'Low',
+      file: 'arcmorph_web/src/pages/OcrStudioPage.tsx',
+      upstream: [{ id: 'arcmorph-core', name: 'ArcMorph Core Platform', type: 'core' }],
+      downstream: [],
+      codeSnippet: '// Hierarchical Vault Directory\nocr_vault/ocrproject_{id}/Stored/{index}/uploaded/'
+    },
+    {
+      id: 'session-guard',
+      name: 'Inactivity Lockout & PIN Daemon',
+      type: 'service',
+      cluster: 'Infrastructure',
+      complexity: 18,
+      loc: 820,
+      risk: 'Low',
+      file: 'arcmorph_web/src/context/SessionLockContext.tsx',
+      upstream: [{ id: 'frontend-spa', name: 'Vite React UI Shell', type: 'service' }],
+      downstream: [],
+      codeSnippet: '// Continuous Background Task Guarantee\nif (idleTime > timeout) lockScreenWithoutStoppingTasks();'
+    }
+  ],
+  edges: [
+    { id: 'am-e1', source: 'arcmorph-core', target: 'frontend-spa', label: 'Mounts Shell' },
+    { id: 'am-e2', source: 'arcmorph-core', target: 'terminal-ipc', label: 'Streams CLI' },
+    { id: 'am-e3', source: 'arcmorph-core', target: 'ocr-vault-engine', label: 'Dispatches Files' },
+    { id: 'am-e4', source: 'frontend-spa', target: 'docker-container', label: 'Runs In' },
+    { id: 'am-e5', source: 'frontend-spa', target: 'session-guard', label: 'Monitors Activity' },
+    { id: 'am-e6', source: 'docker-container', target: 'mongodb-nosql', label: 'Persists Logs' },
+    { id: 'am-e7', source: 'terminal-ipc', target: 'qwen-orchestrator', label: 'Infers Intent' },
+    { id: 'am-e8', source: 'qwen-orchestrator', target: 'subagent-swarm', label: 'Orchestrates' },
+    { id: 'am-e9', source: 'subagent-swarm', target: 'ocr-vault-engine', label: 'Stores Output' }
+  ]
+};
+
+export const PROJECT_TOPOLOGY_DATASETS: Record<string, Record<string, GraphDataset>> = {
+  arcmorph: {
+    form_dependency: ARCMORPH_PLATFORM_DATASET,
+    database_erd: ARCMORPH_PLATFORM_DATASET,
+    user_journey: ARCMORPH_PLATFORM_DATASET
+  },
+  bornomala: {
+    form_dependency: FORM_DEPENDENCY_DATASET,
+    database_erd: DATABASE_ERD_DATASET,
+    user_journey: USER_JOURNEY_DATASET
+  }
+};

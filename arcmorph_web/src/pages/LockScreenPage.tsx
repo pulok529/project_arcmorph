@@ -124,19 +124,19 @@ export const LockScreenPage: React.FC = () => {
 
           {/* Background Tasks Running Telemetry */}
           {activeTasks.length > 0 && (
-            <div className="p-2 mb-3 rounded bg-black-subtle border border-dark text-start fs-11">
-              <span className="text-emerald d-flex align-items-center gap-1 mb-1 fw-bold">
-                <span className="spinner-grow spinner-grow-sm text-emerald" style={{ width: 8, height: 8 }}></span>
-                {activeTasks.length} background process executing
+            <div className="p-2.5 mb-3 rounded border text-start fs-11" style={{ backgroundColor: 'rgba(0, 242, 254, 0.05)', borderColor: 'rgba(0, 242, 254, 0.2)' }}>
+              <span className="text-cyan d-flex align-items-center gap-1.5 mb-1 fw-bold">
+                <span className="spinner-grow spinner-grow-sm text-cyan" style={{ width: 8, height: 8 }}></span>
+                {activeTasks.length} background process(es) executing
               </span>
-              <span className="text-muted d-block text-truncate">
+              <span className="d-block text-truncate text-light font-monospace">
                 {activeTasks[0].title} ({activeTasks[0].progress}%)
               </span>
             </div>
           )}
 
           {error && (
-            <div className="alert alert-danger py-2 px-3 fs-12 mb-3 border-danger bg-danger-subtle text-danger">
+            <div className="alert alert-danger py-2 px-3 fs-12 mb-3 border-danger bg-danger-subtle text-danger fw-semibold">
               {error}
             </div>
           )}
@@ -150,8 +150,8 @@ export const LockScreenPage: React.FC = () => {
                   id={`lock-pin-${idx}`}
                   type="password"
                   maxLength={1}
-                  className="form-control text-center fs-20 fw-bold bg-dark border-secondary text-cyan"
-                  style={{ width: 48, height: 54 }}
+                  className="form-control text-center fs-20 fw-bold border-secondary text-cyan"
+                  style={{ width: 48, height: 54, backgroundColor: '#050811', borderColor: 'rgba(0, 242, 254, 0.4)' }}
                   value={digit}
                   onChange={(e) => handleDigitChange(idx, e.target.value)}
                   autoFocus={idx === 0}
@@ -165,7 +165,8 @@ export const LockScreenPage: React.FC = () => {
                 <div key={n} className="col-4">
                   <button
                     type="button"
-                    className="btn btn-sm btn-dark w-100 py-2 fs-14 fw-bold border-secondary text-light hover-border-cyan"
+                    className="btn btn-sm w-100 py-2 fs-14 fw-bold text-white border-secondary hover-cyan"
+                    style={{ backgroundColor: '#111827', borderColor: 'rgba(255, 255, 255, 0.15)' }}
                     onClick={() => handleDialClick(n)}
                   >
                     {n}
@@ -175,7 +176,8 @@ export const LockScreenPage: React.FC = () => {
               <div className="col-4">
                 <button
                   type="button"
-                  className="btn btn-sm btn-dark w-100 py-2 fs-12 text-muted border-secondary"
+                  className="btn btn-sm w-100 py-2 fs-12 fw-bold text-light border-secondary hover-cyan"
+                  style={{ backgroundColor: '#111827', borderColor: 'rgba(255, 255, 255, 0.15)' }}
                   onClick={() => setPin(['', '', '', ''])}
                 >
                   CLR
@@ -184,7 +186,8 @@ export const LockScreenPage: React.FC = () => {
               <div className="col-4">
                 <button
                   type="button"
-                  className="btn btn-sm btn-dark w-100 py-2 fs-14 fw-bold border-secondary text-light hover-border-cyan"
+                  className="btn btn-sm w-100 py-2 fs-14 fw-bold text-white border-secondary hover-cyan"
+                  style={{ backgroundColor: '#111827', borderColor: 'rgba(255, 255, 255, 0.15)' }}
                   onClick={() => handleDialClick('0')}
                 >
                   0
@@ -193,7 +196,8 @@ export const LockScreenPage: React.FC = () => {
               <div className="col-4">
                 <button
                   type="button"
-                  className="btn btn-sm btn-dark w-100 py-2 fs-12 text-warning border-secondary"
+                  className="btn btn-sm w-100 py-2 fs-12 text-warning border-secondary hover-cyan"
+                  style={{ backgroundColor: '#111827', borderColor: 'rgba(255, 255, 255, 0.15)' }}
                   onClick={handleBackspace}
                 >
                   <i className="ti ti-backspace"></i>
@@ -211,7 +215,7 @@ export const LockScreenPage: React.FC = () => {
           </form>
 
           <div className="mt-3 text-center">
-            <Link to="/login" className="text-muted fs-12 text-decoration-none hover-light">
+            <Link to="/login" className="text-light fs-12 text-decoration-none opacity-75 hover-cyan">
               <i className="ti ti-switch-horizontal me-1"></i> Switch account or sign in with password
             </Link>
           </div>

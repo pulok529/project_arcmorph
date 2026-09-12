@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { PageHeader } from '../components/common/PageHeader';
 import { useModels, ModelEntity } from '../context/ModelContext';
 import { useSessionLock } from '../context/SessionLockContext';
+import { useTheme } from '../context/ThemeContext';
 import Swal from 'sweetalert2';
 
 export const SettingsPage: React.FC = () => {
+  const { toggleCustomizer } = useTheme();
   const { models, activeModelId, setActiveModelId, addModel, removeModel, toggleModelStatus } = useModels();
   const { lockTimeoutMinutes, setLockTimeoutMinutes, pin, updatePin, clientIp } = useSessionLock();
 
@@ -49,23 +51,7 @@ export const SettingsPage: React.FC = () => {
   };
 
   const handleLaunchCustomizer = () => {
-    // Open the Paces theme customizer offcanvas if present
-    const customizerBtn = document.querySelector('[data-bs-target="#customizer-offcanvas"]') as HTMLButtonElement | null;
-    if (customizerBtn) {
-      customizerBtn.click();
-    } else {
-      // Dispatch customizer open event
-      const event = new CustomEvent('paces:open-customizer');
-      window.dispatchEvent(event);
-      Swal.fire({
-        title: 'Paces Customizer Active',
-        text: 'You can adjust theme colors, navigation layout, topbar style, and font sizing.',
-        icon: 'info',
-        confirmButtonColor: '#00f2fe',
-        background: '#0b0f19',
-        color: '#f8fafc'
-      });
-    }
+    toggleCustomizer();
   };
 
   const handleUpdatePin = () => {
