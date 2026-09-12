@@ -3,6 +3,7 @@ import 'simplebar-react/dist/simplebar.min.css';
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 
 export interface MenuItem {
   title: string;
@@ -10,6 +11,7 @@ export interface MenuItem {
   path?: string;
   badge?: { text: string; variant: string };
   children?: MenuItem[];
+  superAdminOnly?: boolean;
 }
 
 export interface MenuCategory {
@@ -19,7 +21,7 @@ export interface MenuCategory {
 
 export const menuData: MenuCategory[] = [
   {
-    category: 'PLATFORM HUB',
+    category: 'CORE PLATFORM',
     items: [
       {
         title: 'Dashboard',
@@ -27,19 +29,60 @@ export const menuData: MenuCategory[] = [
         path: '/'
       },
       {
-        title: 'MorphHub',
-        icon: 'ti-folder',
-        path: '/morph-hub'
+        title: 'Architecture Graph',
+        icon: 'ti-chart-dots-3',
+        path: '/graph',
+        badge: { text: '2D/3D', variant: 'cyan' }
       },
       {
-        title: 'AI Studio',
-        icon: 'ti-robot',
-        path: '/ai-studio'
+        title: 'OCR Studio',
+        icon: 'ti-scan',
+        path: '/ocr-studio',
+        badge: { text: 'Vault', variant: 'warning' }
       },
       {
-        title: 'Live Terminal',
+        title: 'Master Terminal',
         icon: 'ti-terminal-2',
-        path: '/terminal'
+        path: '/terminal',
+        badge: { text: 'CLI', variant: 'success' }
+      },
+      {
+        title: 'MorphHub',
+        icon: 'ti-folder-check',
+        path: '/morph-hub'
+      }
+    ]
+  },
+  {
+    category: 'INTELLIGENCE & AUDIT',
+    items: [
+      {
+        title: 'Notification Hub',
+        icon: 'ti-bell',
+        path: '/notifications',
+        badge: { text: 'Audit', variant: 'danger' }
+      },
+      {
+        title: 'RAG Code Search',
+        icon: 'ti-search',
+        path: '/search'
+      },
+      {
+        title: 'Engineer Profile & CV',
+        icon: 'ti-id-badge-2',
+        path: '/profile'
+      },
+      {
+        title: 'SuperUser Control',
+        icon: 'ti-shield-lock',
+        path: '/users',
+        badge: { text: 'Root', variant: 'warning' },
+        superAdminOnly: true
+      },
+      {
+        title: 'System Settings',
+        icon: 'ti-settings',
+        path: '/settings'
       }
     ]
   }
@@ -82,7 +125,7 @@ const NavItem: React.FC<{
           )}
           <span className="menu-text">{item.title}</span>
           {item.badge && (
-            <span className={`badge bg-${item.badge.variant} float-end me-1`}>{item.badge.text}</span>
+            <span className={`badge bg-${item.badge.variant} float-end me-1 fs-10`}>{item.badge.text}</span>
           )}
           <span
             className="menu-arrow"
@@ -130,7 +173,7 @@ const NavItem: React.FC<{
         )}
         <span className="menu-text">{item.title}</span>
         {item.badge && (
-          <span className={`badge bg-${item.badge.variant} float-end`}>{item.badge.text}</span>
+          <span className={`badge bg-${item.badge.variant} float-end fs-10`}>{item.badge.text}</span>
         )}
       </Link>
     </li>
@@ -140,6 +183,7 @@ const NavItem: React.FC<{
 export const Sidebar: React.FC = () => {
   const location = useLocation();
   const { toggleSidebarMobile, toggleHoverPin, sidenavUser, sidenavSize } = useTheme();
+  const { user, isSuperAdmin, hasPermission } = useAuth();
 
   const getInitialOpenMenus = (): Record<string, boolean> => {
     const map: Record<string, boolean> = {};
@@ -190,6 +234,16 @@ export const Sidebar: React.FC = () => {
     });
   }, [location.pathname]);
 
+  // Filter menu items by user permissions
+  const filteredMenuData = menuData.map(sec => ({
+    ...sec,
+    items: sec.items.filter(item => {
+      if (item.superAdminOnly && !isSuperAdmin) return false;
+      if (item.path && !hasPermission(item.path)) return false;
+      return true;
+    })
+  })).filter(sec => sec.items.length > 0);
+
   return (
     <div className="sidenav-menu">
       {/* Brand Logo */}
@@ -217,27 +271,30 @@ export const Sidebar: React.FC = () => {
       <SimpleBar className="scrollbar" style={{ maxHeight: 'calc(100% - 70px)' }}>
         {/* User Profile Box */}
         {sidenavUser && (
-          <div className="sidenav-user" id="user-profile-settings" style={{ background: 'url(/assets/images/user-bg-pattern.svg)' }}>
+          <div className="sidenav-user p-3 border-bottom border-dark" style={{ background: 'rgba(0, 242, 254, 0.03)' }}>
             <div className="d-flex justify-content-between align-items-center">
-              <div>
-                <a className="link-reset" href="#!">
-                  <img src="/assets/images/users/user-1.jpg" alt="user" className="rounded-circle mb-2 avatar-md" />
-                  <span className="sidenav-user-name fw-bold d-block">David Dev</span>
-                  <span className="fs-12 fw-semibold text-muted">Art Director</span>
-                </a>
-              </div>
-              <div>
-                <a className="link-reset sidenav-user-set-icon" href="#!">
-                  <i className="ti ti-settings fs-24 align-middle ms-1"></i>
-                </a>
-              </div>
+              <Link to="/profile" className="d-flex align-items-center gap-2 text-decoration-none">
+                <img
+                  src={user?.avatar || "/assets/images/users/naimul_islam.jpg"}
+                  alt="user"
+                  className="rounded-circle avatar-sm border border-cyan"
+                  style={{ width: 38, height: 38, objectFit: 'cover' }}
+                />
+                <div>
+                  <span className="sidenav-user-name fw-bold d-block text-white fs-13">{user?.name || 'Naimul Islam'}</span>
+                  <span className="fs-11 fw-semibold text-cyan">{user?.role || 'SuperAdmin'}</span>
+                </div>
+              </Link>
+              <Link to="/settings" className="text-muted hover-cyan">
+                <i className="ti ti-settings fs-20 align-middle"></i>
+              </Link>
             </div>
           </div>
         )}
 
         {/* Navigation Menu */}
         <ul className="side-nav">
-          {menuData.map((sec, idx) => (
+          {filteredMenuData.map((sec, idx) => (
             <React.Fragment key={idx}>
               <li className="side-nav-title">{sec.category}</li>
               {sec.items.map((item, itemIdx) => (
@@ -264,10 +321,10 @@ export const Sidebar: React.FC = () => {
                   <i className="ti ti-circle-filled fs-8 me-1 text-success"></i> Engine Online
                 </span>
               </div>
-              <h6 className="text-light fw-bold mb-1 fs-13">ArcMorph v1.0</h6>
-              <p className="fs-xs text-muted mb-2">Modernization Platform</p>
+              <h6 className="text-light fw-bold mb-1 fs-13">ArcMorph v2.4</h6>
+              <p className="fs-xs text-muted mb-2">Multi-Agent Reverse Engine</p>
               <Link to="/terminal" className="btn btn-sm w-100 fw-medium" style={{ border: '1px solid #00f2fe', color: '#00f2fe' }}>
-                <i className="ti ti-terminal me-1"></i> Live Terminal
+                <i className="ti ti-terminal me-1"></i> Open Terminal
               </Link>
             </div>
           </div>

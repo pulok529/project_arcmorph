@@ -31,18 +31,57 @@ html[data-bs-theme="dark"] .light-mode {
   display: none !important;
 }
 
-/* === ARCMORPH CYBERNETIC BRAND STYLING === */
+/* === DUAL-THEME VARIABLES (DARK DEFAULT + POLISHED LIGHT) === */
 :root {
-  --am-canvas: #0b0f19;
-  --am-card-bg: #111827;
   --am-cyan: #00f2fe;
   --am-blue: #3b82f6;
   --am-emerald: #10b981;
+  --am-amber: #f59e0b;
+  --am-purple: #8b5cf6;
 }
 
-html[data-bs-theme="dark"] body {
+html[data-bs-theme="dark"] {
+  --am-canvas: #0b0f19;
+  --am-card-bg: #111827;
+  --am-card-header-bg: #0d1321;
+  --am-text: #f1f5f9;
+  --am-text-muted: #94a3b8;
+  --am-border: rgba(255, 255, 255, 0.08);
+  --am-input-bg: #0b0f19;
+  --am-terminal-bg: #050811;
+}
+
+html[data-bs-theme="light"] {
+  --am-canvas: #f4f6f9;
+  --am-card-bg: #ffffff;
+  --am-card-header-bg: #f8fafc;
+  --am-text: #0f172a;
+  --am-text-muted: #64748b;
+  --am-border: rgba(0, 0, 0, 0.08);
+  --am-input-bg: #ffffff;
+  --am-terminal-bg: #1e293b;
+}
+
+/* Global Body Styling */
+body {
   background-color: var(--am-canvas) !important;
-  color: #e2e8f0;
+  color: var(--am-text) !important;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Responsive Text Overrides to Prevent Invisible Colors */
+.text-slate-900 {
+  color: var(--am-text) !important;
+}
+
+html[data-bs-theme="dark"] .card {
+  background-color: var(--am-card-bg) !important;
+  border-color: var(--am-border) !important;
+}
+
+html[data-bs-theme="dark"] .card-header {
+  background-color: var(--am-card-header-bg) !important;
+  border-bottom-color: var(--am-border) !important;
 }
 
 html[data-bs-theme="dark"] .sidenav-menu {
@@ -55,26 +94,72 @@ html[data-bs-theme="dark"] .app-topbar {
   border-bottom: 1px solid rgba(0, 242, 254, 0.12) !important;
 }
 
-html[data-bs-theme="dark"] .card {
-  background-color: var(--am-card-bg) !important;
-  border-color: rgba(255, 255, 255, 0.07) !important;
+/* Light Mode Card & Container Styling */
+html[data-bs-theme="light"] .card {
+  background-color: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.text-cyan {
+html[data-bs-theme="light"] .sidenav-menu {
+  background-color: #ffffff !important;
+  border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+html[data-bs-theme="light"] .app-topbar {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+/* === NAVIGATION ANIMATION PARITY IN DARK & LIGHT MODES === */
+.side-nav-link {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative;
+  border-radius: 8px;
+  margin: 2px 8px;
+}
+
+.side-nav-link:hover {
+  transform: translateX(4px) !important;
+}
+
+html[data-bs-theme="dark"] .side-nav-link:hover {
+  background-color: rgba(0, 242, 254, 0.08) !important;
   color: #00f2fe !important;
 }
 
-.bg-cyan-subtle {
-  background-color: rgba(0, 242, 254, 0.12) !important;
+html[data-bs-theme="dark"] .side-nav-link.active {
+  background: linear-gradient(90deg, rgba(0, 242, 254, 0.15) 0%, rgba(59, 130, 246, 0.08) 100%) !important;
+  color: #00f2fe !important;
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 #00f2fe;
 }
 
-.border-cyan {
-  border-color: #00f2fe !important;
+html[data-bs-theme="light"] .side-nav-link:hover {
+  background-color: rgba(59, 130, 246, 0.08) !important;
+  color: #2563eb !important;
 }
 
-.glow-cyan {
-  box-shadow: 0 0 15px rgba(0, 242, 254, 0.35) !important;
+html[data-bs-theme="light"] .side-nav-link.active {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.12) 0%, rgba(37, 99, 235, 0.05) 100%) !important;
+  color: #2563eb !important;
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 #2563eb;
 }
+
+.side-nav-link i, .side-nav-link svg {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.side-nav-link:hover i, .side-nav-link:hover svg {
+  transform: scale(1.15) !important;
+}
+
+/* Brand Colors & Utilities */
+.text-cyan { color: #00f2fe !important; }
+.bg-cyan-subtle { background-color: rgba(0, 242, 254, 0.12) !important; }
+.border-cyan { border-color: #00f2fe !important; }
+.glow-cyan { box-shadow: 0 0 15px rgba(0, 242, 254, 0.35) !important; }
 
 .btn-gradient-cyan {
   background: linear-gradient(135deg, #00f2fe 0%, #3b82f6 100%) !important;
@@ -87,3 +172,50 @@ html[data-bs-theme="dark"] .card {
   box-shadow: 0 0 20px rgba(0, 242, 254, 0.4) !important;
 }
 
+/* === SOUNDWAVE 10-SECOND NOTIFICATION RIPPLE ANIMATION === */
+@keyframes soundwave-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.8);
+    opacity: 0.2;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+.soundwave-active {
+  position: relative;
+}
+
+.soundwave-active::before,
+.soundwave-active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  border: 2px solid #00f2fe;
+  pointer-events: none;
+  animation: soundwave-pulse 1.4s infinite cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.soundwave-active::after {
+  animation-delay: 0.7s;
+}
+
+/* Notification badge alignment fix */
+.notif-badge-aligned {
+  position: absolute !important;
+  top: 4px !important;
+  right: 4px !important;
+  transform: none !important;
+  font-size: 10px !important;
+  padding: 2px 5px !important;
+}

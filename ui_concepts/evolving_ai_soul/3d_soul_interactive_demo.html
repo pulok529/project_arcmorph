@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ArcMorph 3D Soul - Interactive WebGL Engine</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #070a12; font-family: system-ui, sans-serif; }
+    #glcanvas { width: 100%; height: 100%; display: block; }
+  </style>
+</head>
+<body class="relative text-slate-100 select-none">
+
+  <!-- Background Vignette Canvas -->
+  <canvas id="glcanvas"></canvas>
+
+  <!-- Top Floating HUD -->
+  <div class="absolute top-5 left-6 right-6 flex items-center justify-between pointer-events-none">
+    <div class="flex items-center gap-3 bg-slate-900/80 backdrop-blur-md border border-slate-800 px-4 py-2.5 rounded-2xl shadow-xl pointer-events-auto">
+      <div class="w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_12px_#00f2fe] animate-pulse"></div>
+      <div>
+        <div class="text-xs font-bold uppercase tracking-wider text-cyan-300">ArcMorph Evolving Soul</div>
+        <div class="text-[11px] text-slate-400">WebGL 60 FPS • High-DPI Shader Architecture</div>
+      </div>
+    </div>
+
+    <!-- Status Badge -->
+    <div id="statusBadge" class="bg-slate-900/80 backdrop-blur-md border border-slate-800 px-4 py-2 rounded-2xl text-xs font-mono text-emerald-400 flex items-center gap-2 shadow-xl pointer-events-auto">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+      <span>Stage: <strong id="stageLabel">Synaptic Alpha (Tier 2)</strong></span>
+    </div>
+  </div>
+
+  <!-- Bottom Floating Interactive Controls -->
+  <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-xl border border-slate-800/90 px-6 py-4 rounded-3xl shadow-2xl flex flex-wrap items-center gap-6 max-w-2xl w-[92%]">
+    <!-- Evolution Slider -->
+    <div class="flex-1 min-w-[140px]">
+      <div class="flex justify-between text-[11px] font-semibold text-slate-300 mb-1">
+        <span>Evolution Stage</span>
+        <span id="sliderVal" class="text-cyan-400">2</span>
+      </div>
+      <input id="evolutionSlider" type="range" min="1" max="4" step="1" value="2" 
+        class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400">
+    </div>
+
+    <!-- Glow Slider -->
+    <div class="flex-1 min-w-[140px]">
+      <div class="flex justify-between text-[11px] font-semibold text-slate-300 mb-1">
+        <span>Neural Glow</span>
+        <span id="glowVal" class="text-emerald-400">1.2</span>
+      </div>
+      <input id="glowSlider" type="range" min="0.5" max="3.0" step="0.1" value="1.2" 
+        class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-400">
+    </div>
+
+    <!-- Reward Pulse Trigger -->
+    <button id="pulseBtn" class="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 shadow-[0_0_15px_rgba(0,242,254,0.4)] hover:brightness-110 active:scale-95 transition-all">
+      ⚡ Pass Test (+1.0 RL Reward)
+    </button>
+  </div>
+
+  <!-- Interactive Shader Scripts -->
+  <script>
+    const canvas = document.getElementById('glcanvas');
+    const gl = canvas.getContext('webgl');
+
+    if (!gl) {
+      alert('WebGL not supported');
+    }
+
+    // High DPI Retina Resolution Setup
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Quad Vertex Shader
+    const vsSource = `
+      attribute vec2 a_position;
+      varying vec2 v_uv;
+      void main() {
+        v_uv = a_position * 0.5 + 0.5;
+        gl_Position = vec4(a_position, 0.0, 1.0);
+      }
+    `;
+
+    // Raymarching Volumetric AI Soul Fragment Shader
+    const fsSource = `
+      precision highp float;
+      varying vec2 v_uv;
+      uniform vec2 u_resolution;
+      uniform float u_time;
+      uniform vec2 u_mouse;
+      uniform float u_stage;
+      uniform float u_glow;
+      uniform float u_pulse;
+
+      // Simplex Noise 3D implementation
+      vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+      vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+      vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+      vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+
+      float snoise(vec3 v) {
+        const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+        const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+        vec3 i  = floor(v + dot(v, C.yyy));
+        vec3 x0 = v - i + dot(i, C.xxx);
+        vec3 g = step(x0.yzx, x0.xyz);
+        vec3 l = 1.0 - g;
+        vec3 i1 = min(g.xyz, l.zxy);
+        vec3 i2 = max(g.xyz, l.zxy);
+        vec3 x1 = x0 - i1 + C.xxx;
+        vec3 x2 = x0 - i2 + C.yyy;
+        vec3 x3 = x0 - D.yyy;
+        i = mod289(i);
+        vec4 p = permute(permute(permute(
+                  i.z + vec4(0.0, i1.z, i2.z, 1.0))
+                + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+                + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+        float n_ = 0.142857142857;
+        vec3 ns = n_ * D.wyz - D.xzx;
+        vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+        vec4 x_ = floor(j * ns.z);
+        vec4 y_ = floor(j - 7.0 * x_);
+        vec4 x = x_ *ns.x + ns.yyyy;
+        vec4 y = y_ *ns.x + ns.yyyy;
+        vec4 h = 1.0 - abs(x) - abs(y);
+        vec4 b0 = vec4(x.xy, y.xy);
+        vec4 b1 = vec4(x.zw, y.zw);
+        vec4 s0 = floor(b0)*2.0 + 1.0;
+        vec4 s1 = floor(b1)*2.0 + 1.0;
+        vec4 sh = -step(h, vec4(0.0));
+        vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy;
+        vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww;
+        vec3 p0 = vec3(a0.xy, h.x);
+        vec3 p1 = vec3(a0.zw, h.y);
+        vec3 p2 = vec3(a1.xy, h.z);
+        vec3 p3 = vec3(a1.zw, h.w);
+        vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+        p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+        vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+        m = m * m;
+        return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+      }
+
+      void main() {
+        vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / min(u_resolution.y, u_resolution.x);
+        
+        // 1. Studio Radial Vignette Background (Removes Flat Black!)
+        float bgDist = length(uv);
+        vec3 bgColor = mix(vec3(0.06, 0.09, 0.18), vec3(0.02, 0.03, 0.06), smoothstep(0.1, 1.2, bgDist));
+        
+        // Add subtle studio floor reflection grid
+        float floorY = -0.55;
+        if (uv.y < floorY) {
+          float gridLine = smoothstep(0.02, 0.0, abs(fract(uv.x * 12.0) - 0.5));
+          bgColor += vec3(0.0, 0.15, 0.2) * gridLine * (floorY - uv.y) * 0.4;
+        }
+
+        // 2. Pedestal Glowing Ring on Ground
+        vec2 pedUv = uv - vec2(0.0, -0.42);
+        float pedDist = length(vec2(pedUv.x * 1.8, pedUv.y * 4.5));
+        float pedRing = smoothstep(0.48, 0.45, pedDist) * smoothstep(0.40, 0.44, pedDist);
+        bgColor += vec3(0.0, 0.95, 0.99) * pedRing * 1.8;
+
+        // 3. 3D Glass Sphere Center & Interaction Tracking
+        vec2 center = vec2(0.0, 0.05) + (u_mouse * 0.06);
+        float r = 0.38; // Sphere radius
+        vec2 d = uv - center;
+        float dist = length(d);
+
+        vec3 finalColor = bgColor;
+
+        // 4. Orbital Particles & Rings (Stage Dependent)
+        float ringRot = u_time * 0.5;
+        vec2 rotD = vec2(d.x * cos(ringRot) - d.y * sin(ringRot), d.x * sin(ringRot) + d.y * cos(ringRot));
+        float orbRing = smoothstep(0.015, 0.0, abs(length(vec2(rotD.x * 0.8, rotD.y * 2.2)) - (r + 0.12)));
+        finalColor += vec3(0.0, 0.8, 0.9) * orbRing * 0.6 * (u_stage >= 2.0 ? 1.0 : 0.2);
+
+        // Secondary ring for Stage 3 & 4
+        if (u_stage >= 3.0) {
+          float ringRot2 = -u_time * 0.7;
+          vec2 rotD2 = vec2(d.x * cos(ringRot2) - d.y * sin(ringRot2), d.x * sin(ringRot2) + d.y * cos(ringRot2));
+          float orbRing2 = smoothstep(0.012, 0.0, abs(length(vec2(rotD2.x * 2.2, rotD2.y * 0.9)) - (r + 0.18)));
+          finalColor += vec3(0.1, 0.95, 0.5) * orbRing2 * 0.8;
+        }
+
+        // 5. Inside the Sphere: Glass Refraction + Neural Filaments
+        if (dist < r) {
+          // Normal of the glass sphere
+          float z = sqrt(max(0.0, r*r - dist*dist));
+          vec3 N = normalize(vec3(d, z));
+          vec3 V = vec3(0.0, 0.0, 1.0);
+
+          // Fresnel Rim Glow
+          float fresnel = pow(1.0 - max(0.0, dot(N, V)), 2.8);
+
+          // Refracted volumetric raymarching for neural core
+          vec3 p = vec3(d * 1.8, 0.0);
+          float speed = u_time * (0.8 + u_stage * 0.3);
+          
+          // Neural Filaments via multi-frequency noise
+          float n1 = snoise(p * (3.0 + u_stage * 1.5) + vec3(0.0, speed * 0.4, speed * 0.2));
+          float n2 = snoise(p * (6.0 + u_stage * 2.0) - vec3(speed * 0.3, 0.0, speed * 0.5));
+          float filament = smoothstep(0.18, 0.0, abs(n1 + n2 * 0.5));
+
+          // Sacred geometric crystallization for Stage 3 & 4
+          if (u_stage >= 3.0) {
+            float hexLattice = abs(sin(p.x * 12.0) * sin(p.y * 12.0) * sin(z * 12.0));
+            filament = mix(filament, smoothstep(0.2, 0.0, hexLattice), 0.45);
+          }
+
+          // Intense Hot Core
+          float coreDist = length(p);
+          float coreEnergy = smoothstep(0.22, 0.0, coreDist);
+
+          // Color Palettes
+          vec3 cyanColor = vec3(0.0, 0.95, 0.99);
+          vec3 emeraldColor = vec3(0.06, 0.92, 0.51);
+          vec3 whiteHot = vec3(1.0, 1.0, 1.0);
+
+          // Blend based on Stage & Reward Pulse
+          vec3 filamentColor = mix(cyanColor, emeraldColor, clamp(n2 * 0.5 + 0.5 + u_pulse, 0.0, 1.0));
+          if (u_stage >= 4.0) {
+            filamentColor = mix(filamentColor, vec3(1.0, 0.85, 0.3), 0.3); // Sovereign golden flair
+          }
+
+          // Composite Inner Soul
+          vec3 innerGlow = (filamentColor * filament * 2.5 * u_glow) + (whiteHot * coreEnergy * 2.0);
+          innerGlow += u_pulse * emeraldColor * 3.0; // Flash upon reward
+
+          // Glass Shell with chromatic edges
+          vec3 glassRim = mix(cyanColor, emeraldColor, fresnel) * fresnel * 2.2;
+          
+          // Final sphere composite
+          finalColor = mix(finalColor * 0.3, innerGlow, 0.85) + glassRim;
+        }
+
+        // Soft outer volumetric aura
+        float outerGlow = smoothstep(r + 0.25, r, dist);
+        finalColor += vec3(0.0, 0.7, 0.8) * outerGlow * 0.35 * u_glow;
+
+        gl_FragColor = vec4(finalColor, 1.0);
+      }
+    `;
+
+    // Compile Helper
+    function createShader(gl, type, source) {
+      const shader = gl.createShader(type);
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        console.error(gl.getShaderInfoLog(shader));
+        gl.deleteShader(shader);
+        return null;
+      }
+      return shader;
+    }
+
+    const vs = createShader(gl, gl.VERTEX_SHADER, vsSource);
+    const fs = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
+    const program = gl.createProgram();
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    // Full-screen quad
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      -1, -1,  1, -1, -1,  1,
+      -1,  1,  1, -1,  1,  1,
+    ]), gl.STATIC_DRAW);
+
+    const aPosition = gl.getAttribLocation(program, 'a_position');
+    gl.enableVertexAttribArray(aPosition);
+    gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
+
+    // Uniform Locations
+    const uRes = gl.getUniformLocation(program, 'u_resolution');
+    const uTime = gl.getUniformLocation(program, 'u_time');
+    const uMouse = gl.getUniformLocation(program, 'u_mouse');
+    const uStage = gl.getUniformLocation(program, 'u_stage');
+    const uGlow = gl.getUniformLocation(program, 'u_glow');
+    const uPulse = gl.getUniformLocation(program, 'u_pulse');
+
+    let mouse = [0, 0];
+    let targetMouse = [0, 0];
+    window.addEventListener('mousemove', (e) => {
+      targetMouse[0] = (e.clientX / window.innerWidth) * 2 - 1;
+      targetMouse[1] = -((e.clientY / window.innerHeight) * 2 - 1);
+    });
+
+    let currentStage = 2.0;
+    let currentGlow = 1.2;
+    let pulseVal = 0.0;
+
+    // Controls
+    const slider = document.getElementById('evolutionSlider');
+    const sliderVal = document.getElementById('sliderVal');
+    const glowSlider = document.getElementById('glowSlider');
+    const glowVal = document.getElementById('glowVal');
+    const statusBadge = document.getElementById('statusBadge');
+    const stageLabel = document.getElementById('stageLabel');
+    const pulseBtn = document.getElementById('pulseBtn');
+
+    const stageNames = {
+      1: "Genesis Seed (Tier 1)",
+      2: "Synaptic Alpha (Tier 2)",
+      3: "Harmonic Beta (Tier 3)",
+      4: "Sovereign Delta (Tier 4)"
+    };
+
+    slider.addEventListener('input', (e) => {
+      currentStage = parseFloat(e.target.value);
+      sliderVal.textContent = currentStage;
+      stageLabel.textContent = stageNames[currentStage];
+    });
+
+    glowSlider.addEventListener('input', (e) => {
+      currentGlow = parseFloat(e.target.value);
+      glowVal.textContent = currentGlow.toFixed(1);
+    });
+
+    pulseBtn.addEventListener('click', () => {
+      pulseVal = 1.0;
+    });
+
+    // Render Loop
+    let startTime = performance.now();
+    function render() {
+      const time = (performance.now() - startTime) * 0.001;
+      
+      // Smooth mouse lerp
+      mouse[0] += (targetMouse[0] - mouse[0]) * 0.05;
+      mouse[1] += (targetMouse[1] - mouse[1]) * 0.05;
+
+      // Pulse decay
+      pulseVal *= 0.92;
+
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.uniform1f(uTime, time);
+      gl.uniform2f(uMouse, mouse[0], mouse[1]);
+      gl.uniform1f(uStage, currentStage);
+      gl.uniform1f(uGlow, currentGlow);
+      gl.uniform1f(uPulse, pulseVal);
+
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      requestAnimationFrame(render);
+    }
+    render();
+  </script>
+</body>
+</html>

@@ -1,17 +1,25 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
+import { useTasks, PipelineTask } from '../../context/TaskContext';
+import { useSessionLock } from '../../context/SessionLockContext';
+import { playCyberChime } from '../../utils/audioChime';
+import Swal from 'sweetalert2';
 
 export const Topbar: React.FC = () => {
   const { toggleSidebarCollapse, toggleTheme, toggleCustomizer, toggleMonochrome, isMonochrome } = useTheme();
-  const { user, logout } = useAuth();
+  const { user, logout, isSuperAdmin } = useAuth();
+  const { hasActiveTasks, activeTasks, saveAndCheckpointAll, stopAndQuarantineAll } = useTasks();
+  const { lockSession, clientIp } = useSessionLock();
+  const navigate = useNavigate();
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
+  const [currentLang, setCurrentLang] = useState<'EN' | 'BN' | 'IT'>('EN');
   const [isNotifOpen, setIsNotifOpen] = useState(false);
-  const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
-  const [isAppsOpen, setIsAppsOpen] = useState(false);
   const [isAppsGridOpen, setIsAppsGridOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -21,22 +29,95 @@ export const Topbar: React.FC = () => {
     }
   };
 
+  const handleQuickSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const handleBellClick = () => {
+    playCyberChime();
+    setIsNotifOpen(!isNotifOpen);
+  };
+
+  const handleLockScreen = () => {
+    setIsDropdownOpen(false);
+    lockSession();
+    navigate('/lockscreen');
+  };
+
+  const handleLogoutClick = () => {
+    setIsDropdownOpen(false);
+
+    if (hasActiveTasks) {
+      // 3-Choice SweetAlert2 Interceptor for running background tasks
+      const taskList = activeTasks
+        .map((t: PipelineTask) => `<li style="text-align: left; margin-bottom: 6px;"><strong>${t.title}</strong><br><span style="color: #94a3b8; font-size: 12px;">Step: ${t.currentStep} (Est: ${t.estimatedRemaining})</span></li>`)
+        .join('');
+
+      Swal.fire({
+        title: 'Active Work In Progress!',
+        html: `
+          <div style="font-size: 13px; color: #cbd5e1; margin-bottom: 12px;">
+            You have <strong>${activeTasks.length}</strong> active modernization pipeline(s) currently executing:
+          </div>
+          <ul style="max-height: 140px; overflow-y: auto; background: #080c14; padding: 12px 20px; border-radius: 8px; border: 1px solid #1e293b; color: #38bdf8; font-family: monospace;">
+            ${taskList}
+          </ul>
+          <div style="font-size: 12px; color: #94a3b8; margin-top: 10px;">
+            How would you like to handle active background subagents?
+          </div>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonText: '<i class="ti ti-device-floppy"></i> Save & Logout',
+        denyButtonText: '<i class="ti ti-player-stop"></i> Stop & Logout (15-Day Quarantine)',
+        cancelButtonText: '<i class="ti ti-arrow-back-up"></i> Return to Console',
+        confirmButtonColor: '#10b981',
+        denyButtonColor: '#ef4444',
+        cancelButtonColor: '#64748b',
+        background: '#0b0f19',
+        color: '#f8fafc',
+        width: '600px'
+      }).then((res) => {
+        if (res.isConfirmed) {
+          // Save & Logout
+          saveAndCheckpointAll();
+          logout();
+          navigate('/login');
+          Swal.fire({
+            title: 'Session Checkpointed',
+            text: 'All pipelines saved. You can resume exactly where you left off upon logging in.',
+            icon: 'success',
+            background: '#0b0f19',
+            color: '#f8fafc'
+          });
+        } else if (res.isDenied) {
+          // Stop & Logout (Quarantine for 15 days)
+          stopAndQuarantineAll();
+          logout();
+          navigate('/login');
+          Swal.fire({
+            title: 'Pipelines Quarantined',
+            text: 'Tasks halted and archived to temp_quarantine for 15 days (Restorable).',
+            icon: 'info',
+            background: '#0b0f19',
+            color: '#f8fafc'
+          });
+        }
+      });
+    } else {
+      logout();
+      navigate('/login');
+    }
+  };
+
   return (
     <header className="app-topbar">
       <div className="container-fluid topbar-menu">
         <div className="d-flex align-items-center gap-2">
-          {/* Topbar Brand Logo (for horizontal/compact mode) */}
-          <div className="logo-topbar d-none">
-            <Link to="/" className="logo-light">
-              <span className="logo-lg"><img src="/assets/images/logo.svg" alt="ArchMorph logo" style={{ height: "36px", width: "auto" }} /></span>
-              <span className="logo-sm"><img src="/assets/images/logo-sm.svg" alt="ArchMorph logo" style={{ height: "34px", width: "auto" }} /></span>
-            </Link>
-            <Link to="/" className="logo-dark">
-              <span className="logo-lg"><img src="/assets/images/logo-black.svg" alt="ArchMorph dark logo" style={{ height: "36px", width: "auto" }} /></span>
-              <span className="logo-sm"><img src="/assets/images/logo-sm.svg" alt="ArchMorph logo" style={{ height: "34px", width: "auto" }} /></span>
-            </Link>
-          </div>
-
           {/* Sidenav Toggle Button */}
           <button 
             type="button" 
@@ -49,70 +130,24 @@ export const Topbar: React.FC = () => {
 
           {/* Quick Search - Rounded Pill */}
           <div className="app-search d-none d-xl-flex" id="search-box-rounded">
-            <div className="position-relative">
-              <input type="search" className="form-control rounded-pill topbar-search" placeholder="Quick Search..." />
-              <i className="ti ti-search app-search-icon text-muted"></i>
-            </div>
+            <form onSubmit={handleQuickSearchSubmit} className="position-relative">
+              <input
+                type="search"
+                className="form-control rounded-pill topbar-search"
+                placeholder="Search code, tables, AST..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+              />
+              <i className="ti ti-search app-search-icon text-muted cursor-pointer" onClick={handleQuickSearchSubmit}></i>
+            </form>
           </div>
 
-          {/* Mega Menu Dropdown */}
-          <div className="topbar-item d-none d-md-flex position-relative" id="megamenu-columns">
-            <button 
-              type="button" 
-              className="topbar-link btn fw-medium btn-link dropdown-toggle drop-arrow-none px-2 d-flex align-items-center"
-              onClick={() => setIsMegaMenuOpen(!isMegaMenuOpen)}
-            >
-              Mega Menu <i className="ti ti-chevron-down ms-1 fs-12"></i>
-            </button>
-            {isMegaMenuOpen && (
-              <div 
-                className="dropdown-menu dropdown-menu-xxl show p-3 shadow-lg border rounded"
-                style={{ position: 'absolute', top: 'calc(100% + 12px)', left: 0, width: '600px', zIndex: 1050 }}
-              >
-                <div className="row g-3">
-                  <div className="col-4 border-end">
-                    <h6 className="dropdown-header px-0 text-uppercase fw-bold fs-xs text-primary">Dashboards</h6>
-                    <Link to="/" className="dropdown-item py-1 px-0 fs-sm" onClick={() => setIsMegaMenuOpen(false)}>Analytics Dashboard</Link>
-                    <Link to="/" className="dropdown-item py-1 px-0 fs-sm" onClick={() => setIsMegaMenuOpen(false)}>Ecommerce Dashboard</Link>
-                    <Link to="/pages/empty" className="dropdown-item py-1 px-0 fs-sm" onClick={() => setIsMegaMenuOpen(false)}>CRM Dashboard</Link>
-                  </div>
-                  <div className="col-4 border-end">
-                    <h6 className="dropdown-header px-0 text-uppercase fw-bold fs-xs text-primary">Applications</h6>
-                    <Link to="/pages/empty" className="dropdown-item py-1 px-0 fs-sm" onClick={() => setIsMegaMenuOpen(false)}>Chat Messenger</Link>
-                    <Link to="/pages/empty" className="dropdown-item py-1 px-0 fs-sm" onClick={() => setIsMegaMenuOpen(false)}>Projects Hub</Link>
-                    <Link to="/plugins/sweet-alerts" className="dropdown-item py-1 px-0 fs-sm" onClick={() => setIsMegaMenuOpen(false)}>SweetAlerts Plugin</Link>
-                  </div>
-                  <div className="col-4">
-                    <h6 className="dropdown-header px-0 text-uppercase fw-bold fs-xs text-primary">Layouts & Auth</h6>
-                    <Link to="/auth/login" className="dropdown-item py-1 px-0 fs-sm" onClick={() => setIsMegaMenuOpen(false)}>Sign In (Basic)</Link>
-                    <Link to="/layouts/boxed" className="dropdown-item py-1 px-0 fs-sm" onClick={() => setIsMegaMenuOpen(false)}>Boxed Layout</Link>
-                    <Link to="/pages/empty" className="dropdown-item py-1 px-0 fs-sm" onClick={() => setIsMegaMenuOpen(false)}>Starter Base</Link>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Apps Dropdown */}
-          <div className="topbar-item d-none d-md-flex position-relative" id="apps-dropdown">
-            <button 
-              type="button" 
-              className="topbar-link btn fw-medium btn-link dropdown-toggle drop-arrow-none px-2 d-flex align-items-center"
-              onClick={() => setIsAppsOpen(!isAppsOpen)}
-            >
-              Apps <i className="ti ti-chevron-down ms-1 fs-12"></i>
-            </button>
-            {isAppsOpen && (
-              <div 
-                className="dropdown-menu show shadow-lg border rounded p-2"
-                style={{ position: 'absolute', top: 'calc(100% + 12px)', left: 0, minWidth: '180px', zIndex: 1050 }}
-              >
-                <Link to="/pages/empty" className="dropdown-item py-2" onClick={() => setIsAppsOpen(false)}><i className="ti ti-message me-2"></i> Chat App</Link>
-                <Link to="/pages/empty" className="dropdown-item py-2" onClick={() => setIsAppsOpen(false)}><i className="ti ti-briefcase me-2"></i> Projects</Link>
-                <Link to="/pages/empty" className="dropdown-item py-2" onClick={() => setIsAppsOpen(false)}><i className="ti ti-checkbox me-2"></i> Tasks</Link>
-                <Link to="/pages/empty" className="dropdown-item py-2" onClick={() => setIsAppsOpen(false)}><i className="ti ti-mail me-2"></i> Email</Link>
-              </div>
-            )}
+          {/* Active Client IP & Rig Telemetry */}
+          <div className="d-none d-lg-flex align-items-center gap-2 ms-2 px-2 py-1 rounded bg-dark border border-secondary fs-11 text-muted font-monospace">
+            <span className="badge bg-success-subtle text-success p-1 rounded-circle" style={{ width: 8, height: 8 }}></span>
+            <span>Host: <strong className="text-cyan">{clientIp}</strong></span>
+            <span>•</span>
+            <span>Arch: <strong className="text-light">x86_64</strong></span>
           </div>
         </div>
 
@@ -125,7 +160,7 @@ export const Topbar: React.FC = () => {
               className="topbar-link"
               id="light-dark-mode"
               onClick={toggleTheme}
-              title="Toggle Theme Mode"
+              title="Toggle Theme Mode (Default: Cyber Dark)"
             >
               <i className="ti ti-sun topbar-link-icon fs-20 light-mode"></i>
               <i className="ti ti-moon topbar-link-icon fs-20 dark-mode"></i>
@@ -138,86 +173,104 @@ export const Topbar: React.FC = () => {
               type="button" 
               className="topbar-link"
               onClick={() => setIsAppsGridOpen(!isAppsGridOpen)}
-              title="Application Launcher"
+              title="ArcMorph Tool Suite"
             >
               <i className="ti ti-apps topbar-link-icon fs-20"></i>
             </button>
             {isAppsGridOpen && (
               <div 
                 className="dropdown-menu dropdown-menu-end show p-3 shadow-lg border rounded"
-                style={{ position: 'absolute', top: 'calc(100% + 16px)', right: 0, width: '280px', zIndex: 1050 }}
+                style={{ position: 'absolute', top: 'calc(100% + 16px)', right: 0, width: '310px', zIndex: 1050, background: '#0b0f19', borderColor: 'rgba(0, 242, 254, 0.3)' }}
               >
+                <div className="d-flex justify-content-between align-items-center mb-2 px-1">
+                  <h6 className="m-0 fw-bold text-white fs-12 text-uppercase">ArcMorph Core Apps</h6>
+                  <span className="badge bg-cyan text-dark fs-10 fw-bold">v2.4</span>
+                </div>
                 <div className="row g-2 text-center">
                   <div className="col-4">
-                    <div className="p-2 border rounded hover-bg-light cursor-pointer">
-                      <i className="ti ti-brand-slack fs-24 text-danger d-block mb-1"></i>
-                      <span className="fs-xs fw-semibold">Slack</span>
-                    </div>
+                    <Link to="/graph" className="p-2 border border-secondary rounded d-block text-decoration-none hover-cyan" onClick={() => setIsAppsGridOpen(false)}>
+                      <i className="ti ti-chart-dots-3 fs-24 text-cyan d-block mb-1"></i>
+                      <span className="fs-11 fw-semibold text-light">3D Graph</span>
+                    </Link>
                   </div>
                   <div className="col-4">
-                    <div className="p-2 border rounded hover-bg-light cursor-pointer">
-                      <i className="ti ti-brand-github fs-24 text-dark d-block mb-1"></i>
-                      <span className="fs-xs fw-semibold">GitHub</span>
-                    </div>
+                    <Link to="/ocr-studio" className="p-2 border border-secondary rounded d-block text-decoration-none hover-cyan" onClick={() => setIsAppsGridOpen(false)}>
+                      <i className="ti ti-scan fs-24 text-warning d-block mb-1"></i>
+                      <span className="fs-11 fw-semibold text-light">OCR Studio</span>
+                    </Link>
                   </div>
                   <div className="col-4">
-                    <div className="p-2 border rounded hover-bg-light cursor-pointer">
-                      <i className="ti ti-brand-dribbble fs-24 text-pink d-block mb-1"></i>
-                      <span className="fs-xs fw-semibold">Dribbble</span>
-                    </div>
+                    <Link to="/terminal" className="p-2 border border-secondary rounded d-block text-decoration-none hover-cyan" onClick={() => setIsAppsGridOpen(false)}>
+                      <i className="ti ti-terminal fs-24 text-success d-block mb-1"></i>
+                      <span className="fs-11 fw-semibold text-light">Terminal</span>
+                    </Link>
                   </div>
                   <div className="col-4">
-                    <div className="p-2 border rounded hover-bg-light cursor-pointer">
-                      <i className="ti ti-brand-dropbox fs-24 text-primary d-block mb-1"></i>
-                      <span className="fs-xs fw-semibold">Dropbox</span>
-                    </div>
+                    <Link to="/morph-hub" className="p-2 border border-secondary rounded d-block text-decoration-none hover-cyan" onClick={() => setIsAppsGridOpen(false)}>
+                      <i className="ti ti-refresh fs-24 text-info d-block mb-1"></i>
+                      <span className="fs-11 fw-semibold text-light">Morph Hub</span>
+                    </Link>
                   </div>
                   <div className="col-4">
-                    <div className="p-2 border rounded hover-bg-light cursor-pointer">
-                      <i className="ti ti-brand-google fs-24 text-warning d-block mb-1"></i>
-                      <span className="fs-xs fw-semibold">G Suite</span>
-                    </div>
+                    <Link to="/notifications" className="p-2 border border-secondary rounded d-block text-decoration-none hover-cyan" onClick={() => setIsAppsGridOpen(false)}>
+                      <i className="ti ti-bell fs-24 text-danger d-block mb-1"></i>
+                      <span className="fs-11 fw-semibold text-light">Alerts</span>
+                    </Link>
                   </div>
                   <div className="col-4">
-                    <div className="p-2 border rounded hover-bg-light cursor-pointer">
-                      <i className="ti ti-brand-bitbucket fs-24 text-info d-block mb-1"></i>
-                      <span className="fs-xs fw-semibold">Bitbucket</span>
-                    </div>
+                    <Link to="/profile" className="p-2 border border-secondary rounded d-block text-decoration-none hover-cyan" onClick={() => setIsAppsGridOpen(false)}>
+                      <i className="ti ti-id-badge-2 fs-24 text-primary d-block mb-1"></i>
+                      <span className="fs-11 fw-semibold text-light">Profile & CV</span>
+                    </Link>
                   </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* 3. Notification Bell with Animated Ring */}
+          {/* 3. Notification Bell with 10s Soundwave Ripple & Audio Chime */}
           <div className="topbar-item position-relative" id="notification-dropdown-people">
             <button 
               type="button" 
               className="topbar-link position-relative"
-              onClick={() => setIsNotifOpen(!isNotifOpen)}
-              title="Notifications"
+              onClick={handleBellClick}
+              title="Operational Alerts & Feedback"
             >
-              <i className="ti ti-bell topbar-link-icon animate-ring fs-20"></i>
-              <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style={{ fontSize: '10px' }}>5</span>
+              <i className="ti ti-bell topbar-link-icon fs-20"></i>
+              {/* Soundwave animated ripple badge */}
+              <span className="soundwave-ripple position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style={{ fontSize: '10px' }}>
+                4
+              </span>
             </button>
             {isNotifOpen && (
               <div 
                 className="dropdown-menu dropdown-menu-end show p-3 shadow-lg border rounded"
-                style={{ position: 'absolute', top: 'calc(100% + 16px)', right: 0, width: '320px', zIndex: 1050 }}
+                style={{ position: 'absolute', top: 'calc(100% + 16px)', right: 0, width: '340px', zIndex: 1050, background: '#0b0f19', borderColor: 'rgba(0, 242, 254, 0.3)' }}
               >
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <h6 className="m-0 fw-bold">Notifications</h6>
-                  <span className="badge bg-success-subtle text-success">5 New</span>
+                <div className="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-dark">
+                  <h6 className="m-0 fw-bold text-white fs-13">Operational Alerts</h6>
+                  <span className="badge bg-cyan text-dark fw-bold fs-10">Claude 3.7 & Audit</span>
                 </div>
-                <div className="py-2 border-bottom">
-                  <p className="mb-0 fs-xs fw-semibold">New subscriber registered</p>
-                  <span className="text-muted fs-xs">2 minutes ago</span>
+                <div className="py-2 border-bottom border-dark">
+                  <div className="d-flex align-items-center justify-content-between">
+                    <strong className="fs-12 text-cyan">External AI Critique Ingested</strong>
+                    <span className="badge bg-danger fs-9">New</span>
+                  </div>
+                  <p className="mb-0 fs-11 text-muted text-truncate">Claude 3.7 completed audit of Bornomala ERP monolith.</p>
                 </div>
-                <div className="py-2 border-bottom">
-                  <p className="mb-0 fs-xs fw-semibold">System update completed</p>
-                  <span className="text-muted fs-xs">1 hour ago</span>
+                <div className="py-2 border-bottom border-dark">
+                  <strong className="fs-12 text-light">Tool Audit Blueprint Generated</strong>
+                  <p className="mb-0 fs-11 text-muted text-truncate">Decoupling blueprint for StudentAdmission.aspx ready.</p>
                 </div>
-                <button className="btn btn-sm btn-link w-100 text-center mt-2 p-0" onClick={() => setIsNotifOpen(false)}>Close</button>
+                <div className="pt-2 d-flex justify-content-between align-items-center">
+                  <Link
+                    to="/notifications"
+                    className="btn btn-sm btn-outline-cyan w-100 fs-12 fw-bold"
+                    onClick={() => setIsNotifOpen(false)}
+                  >
+                    View All Notifications &rarr;
+                  </Link>
+                </div>
               </div>
             )}
           </div>
@@ -228,63 +281,50 @@ export const Topbar: React.FC = () => {
               type="button" 
               className="topbar-link"
               onClick={toggleFullscreen}
-              title="Fullscreen Mode"
+              title="Toggle Fullscreen"
             >
               <i className="ti ti-maximize topbar-link-icon fs-20"></i>
             </button>
           </div>
 
-          {/* 5. Monochrome Paint Mode Toggler */}
-          <div className="topbar-item" id="monochrome-toggler">
-            <button 
-              type="button" 
-              id="monochrome-mode"
-              className={`topbar-link ${isMonochrome ? 'text-primary' : ''}`}
-              onClick={toggleMonochrome}
-              title="Monochrome Grayscale Mode"
-            >
-              <i className="ti ti-palette topbar-link-icon fs-20"></i>
-            </button>
-          </div>
-
-          {/* 6. Admin Customizer Button */}
-          <div className="topbar-item">
-            <button 
-              type="button" 
-              className="topbar-link btn-theme-setting"
-              onClick={toggleCustomizer}
-              title="Admin Customizer"
-            >
-              <i className="ti ti-settings topbar-link-icon fs-20"></i>
-            </button>
-          </div>
-
-          {/* 7. Language Selector */}
+          {/* 5. Language Selector (EN, BN, IT) */}
           <div className="topbar-item position-relative" id="language-selector-rounded">
             <button 
               type="button" 
               className="topbar-link d-flex align-items-center gap-1"
               onClick={() => setIsLangOpen(!isLangOpen)}
+              title="Select Interface Language"
             >
-              <img src="/assets/images/flags/us.svg" alt="flag" className="rounded" style={{ width: 18, height: 14 }} />
-              <span className="fw-bold fs-xs d-none d-sm-inline">EN</span>
+              <span className="fw-bold fs-12 text-cyan font-monospace">{currentLang}</span>
             </button>
             {isLangOpen && (
               <div 
-                className="dropdown-menu dropdown-menu-end show shadow-lg border rounded"
-                style={{ position: 'absolute', top: 'calc(100% + 16px)', right: 0, zIndex: 1050 }}
+                className="dropdown-menu dropdown-menu-end show shadow-lg border rounded p-1"
+                style={{ position: 'absolute', top: 'calc(100% + 16px)', right: 0, zIndex: 1050, background: '#0b0f19', borderColor: 'rgba(0, 242, 254, 0.3)' }}
               >
-                <button className="dropdown-item d-flex align-items-center gap-2" onClick={() => setIsLangOpen(false)}>
-                  <img src="/assets/images/flags/us.svg" alt="en" style={{ width: 18 }} /> English
+                <button
+                  className={`dropdown-item d-flex align-items-center gap-2 fs-12 ${currentLang === 'EN' ? 'text-cyan fw-bold' : 'text-light'}`}
+                  onClick={() => { setCurrentLang('EN'); setIsLangOpen(false); }}
+                >
+                  <img src="/assets/images/flags/us.svg" alt="en" style={{ width: 18 }} /> English (US)
                 </button>
-                <button className="dropdown-item d-flex align-items-center gap-2" onClick={() => setIsLangOpen(false)}>
-                  <img src="/assets/images/flags/germany.svg" alt="de" style={{ width: 18 }} /> Deutsch
+                <button
+                  className={`dropdown-item d-flex align-items-center gap-2 fs-12 ${currentLang === 'BN' ? 'text-cyan fw-bold' : 'text-light'}`}
+                  onClick={() => { setCurrentLang('BN'); setIsLangOpen(false); }}
+                >
+                  <span className="badge bg-success text-white fs-10">BD</span> Bengali (বাংলা)
+                </button>
+                <button
+                  className={`dropdown-item d-flex align-items-center gap-2 fs-12 ${currentLang === 'IT' ? 'text-cyan fw-bold' : 'text-light'}`}
+                  onClick={() => { setCurrentLang('IT'); setIsLangOpen(false); }}
+                >
+                  <img src="/assets/images/flags/italy.svg" alt="it" style={{ width: 18 }} /> Italian (Italiano)
                 </button>
               </div>
             )}
           </div>
 
-          {/* 8. User Profile Dropdown */}
+          {/* 6. User Profile Dropdown */}
           <div className="topbar-item nav-user position-relative" id="user-dropdown-detailed">
             <button 
               type="button" 
@@ -292,31 +332,74 @@ export const Topbar: React.FC = () => {
               className="topbar-link dropdown-toggle drop-arrow-none px-2 d-flex align-items-center gap-2"
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             >
-              <img src={user?.avatar || "/assets/images/users/user-1.jpg"} alt="user" className="rounded-circle avatar-xs" style={{ width: 32, height: 32 }} />
+              <img
+                src={user?.avatar || "/assets/images/users/naimul_islam.jpg"}
+                alt="user"
+                className="rounded-circle border border-cyan avatar-xs"
+                style={{ width: 32, height: 32, objectFit: 'cover' }}
+              />
               <div className="d-none d-md-block text-start">
-                <span className="sidenav-user-name fw-bold d-block fs-xs">{user?.name || 'Administrator'}</span>
-                <span className="fs-11 fw-semibold text-muted">{user?.role || 'Modernization Architect'}</span>
+                <span className="sidenav-user-name fw-bold d-block fs-xs text-light">{user?.name || 'Naimul Islam'}</span>
+                <span className="fs-11 fw-semibold text-cyan">{user?.role || 'SuperAdmin'}</span>
               </div>
-              <i className="ti ti-chevron-down fs-xs d-none d-md-inline"></i>
+              <i className="ti ti-chevron-down fs-xs d-none d-md-inline text-muted"></i>
             </button>
 
             {isDropdownOpen && (
               <div 
                 id="topbar-user-menu"
-                className="dropdown-menu dropdown-menu-end show shadow-lg border rounded"
-                style={{ position: 'absolute', top: 'calc(100% + 16px)', right: 0, zIndex: 1050, minWidth: 200, background: '#111827', borderColor: 'rgba(0, 242, 254, 0.2)' }}
+                className="dropdown-menu dropdown-menu-end show shadow-lg border rounded p-2"
+                style={{ position: 'absolute', top: 'calc(100% + 16px)', right: 0, zIndex: 1050, minWidth: 220, background: '#0b0f19', borderColor: 'rgba(0, 242, 254, 0.3)' }}
               >
                 <div className="px-3 py-2 border-bottom border-dark">
-                  <h6 className="mb-0 fw-bold text-light">{user?.name || 'Administrator'}</h6>
-                  <span className="text-muted fs-xs">{user?.username || 'admin'}@arcmorph.dev</span>
+                  <h6 className="mb-0 fw-bold text-light">{user?.name || 'Naimul Islam'}</h6>
+                  <small className="text-muted font-monospace fs-11">@{user?.username || 'superadmin'}</small>
                 </div>
+
+                <div className="py-1">
+                  <Link
+                    to="/profile"
+                    className="dropdown-item py-1.5 fs-12 text-light d-flex align-items-center gap-2"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    <i className="ti ti-id-badge-2 text-cyan"></i> Profile & CV Generator
+                  </Link>
+
+                  {isSuperAdmin && (
+                    <Link
+                      to="/users"
+                      className="dropdown-item py-1.5 fs-12 text-light d-flex align-items-center gap-2"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      <i className="ti ti-shield-lock text-warning"></i> SuperUser Control Hub
+                    </Link>
+                  )}
+
+                  <Link
+                    to="/settings"
+                    className="dropdown-item py-1.5 fs-12 text-light d-flex align-items-center gap-2"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    <i className="ti ti-settings text-info"></i> System Settings
+                  </Link>
+
+                  <button
+                    type="button"
+                    className="dropdown-item py-1.5 fs-12 text-warning d-flex align-items-center gap-2"
+                    onClick={handleLockScreen}
+                  >
+                    <i className="ti ti-lock"></i> Lock Screen (PIN)
+                  </button>
+                </div>
+
                 <div className="dropdown-divider my-1 border-dark"></div>
+
                 <button 
                   type="button" 
-                  className="dropdown-item py-2 text-danger d-flex align-items-center gap-2" 
-                  onClick={() => { setIsDropdownOpen(false); logout(); }}
+                  className="dropdown-item py-1.5 text-danger d-flex align-items-center gap-2 fs-12 fw-bold" 
+                  onClick={handleLogoutClick}
                 >
-                  <i className="ti ti-logout fs-16"></i> Sign Out
+                  <i className="ti ti-logout fs-15"></i> Sign Out
                 </button>
               </div>
             )}
@@ -326,3 +409,5 @@ export const Topbar: React.FC = () => {
     </header>
   );
 };
+
+export default Topbar;
