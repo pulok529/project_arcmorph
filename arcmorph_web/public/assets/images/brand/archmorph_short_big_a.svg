@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%">
+  <defs>
+    <linearGradient id="gradBigA1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f2fe" />
+      <stop offset="100%" stop-color="#2563eb" />
+    </linearGradient>
+    <linearGradient id="gradBigA2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#00f2fe" />
+    </linearGradient>
+  </defs>
+  <polygon points="30,135 62,135 78,35 48,35" fill="url(#gradBigA1)" />
+  <polygon points="50,92 108,92 103,78 54,78" fill="#00f2fe" />
+  <line x1="78" y1="35" x2="105" y2="70" stroke="url(#gradBigA2)" stroke-width="5" stroke-linecap="round" />
+  <line x1="105" y1="70" x2="128" y2="135" stroke="url(#gradBigA2)" stroke-width="5" stroke-linecap="round" />
+  <line x1="105" y1="70" x2="80" y2="135" stroke="url(#gradBigA2)" stroke-width="3" stroke-dasharray="3,3" />
+  <circle cx="78" cy="35" r="6" fill="#00f2fe" />
+  <circle cx="105" cy="70" r="6.5" fill="#10b981" />
+  <circle cx="128" cy="135" r="5" fill="#38bdf8" />
+  <circle cx="80" cy="135" r="4" fill="#10b981" />
+</svg>

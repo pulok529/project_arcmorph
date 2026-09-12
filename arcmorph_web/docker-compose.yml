@@ -1,0 +1,15 @@
+services:
+  arcmorph-web:
+    container_name: project_arcmorph
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: arcmorph:web
+    ports:
+      - "3005:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    labels:
+      - "app=ArcMorph"
+      - "role=web-studio"

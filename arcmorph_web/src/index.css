@@ -1,0 +1,89 @@
+/* === SLEEK FLOATING SCROLLBAR STYLING === */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(140, 150, 170, 0.35);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 150, 170, 0.65);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(140, 150, 170, 0.35) transparent;
+}
+
+/* === THEME TOGGLE SUN/MOON ICON DYNAMIC VISIBILITY === */
+html[data-bs-theme="light"] .dark-mode {
+  display: none !important;
+}
+
+html[data-bs-theme="dark"] .light-mode {
+  display: none !important;
+}
+
+/* === ARCMORPH CYBERNETIC BRAND STYLING === */
+:root {
+  --am-canvas: #0b0f19;
+  --am-card-bg: #111827;
+  --am-cyan: #00f2fe;
+  --am-blue: #3b82f6;
+  --am-emerald: #10b981;
+}
+
+html[data-bs-theme="dark"] body {
+  background-color: var(--am-canvas) !important;
+  color: #e2e8f0;
+}
+
+html[data-bs-theme="dark"] .sidenav-menu {
+  background-color: #080c14 !important;
+  border-right: 1px solid rgba(0, 242, 254, 0.12) !important;
+}
+
+html[data-bs-theme="dark"] .app-topbar {
+  background-color: #080c14 !important;
+  border-bottom: 1px solid rgba(0, 242, 254, 0.12) !important;
+}
+
+html[data-bs-theme="dark"] .card {
+  background-color: var(--am-card-bg) !important;
+  border-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+.text-cyan {
+  color: #00f2fe !important;
+}
+
+.bg-cyan-subtle {
+  background-color: rgba(0, 242, 254, 0.12) !important;
+}
+
+.border-cyan {
+  border-color: #00f2fe !important;
+}
+
+.glow-cyan {
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.35) !important;
+}
+
+.btn-gradient-cyan {
+  background: linear-gradient(135deg, #00f2fe 0%, #3b82f6 100%) !important;
+  color: #0b0f19 !important;
+  font-weight: 700;
+  border: none !important;
+}
+
+.btn-gradient-cyan:hover {
+  box-shadow: 0 0 20px rgba(0, 242, 254, 0.4) !important;
+}
+
