@@ -150,8 +150,14 @@ export const LockScreenPage: React.FC = () => {
                   id={`lock-pin-${idx}`}
                   type="password"
                   maxLength={1}
-                  className="form-control text-center fs-20 fw-bold border-secondary text-cyan"
-                  style={{ width: 48, height: 54, backgroundColor: '#050811', borderColor: 'rgba(0, 242, 254, 0.4)' }}
+                  className="form-control text-center fs-20 fw-bold border-secondary"
+                  style={{
+                    width: 48,
+                    height: 54,
+                    backgroundColor: '#050811',
+                    borderColor: 'rgba(0, 242, 254, 0.4)',
+                    color: '#00f2fe'
+                  }}
                   value={digit}
                   onChange={(e) => handleDigitChange(idx, e.target.value)}
                   autoFocus={idx === 0}
@@ -165,8 +171,18 @@ export const LockScreenPage: React.FC = () => {
                 <div key={n} className="col-4">
                   <button
                     type="button"
-                    className="btn btn-sm w-100 py-2 fs-14 fw-bold text-white border-secondary hover-cyan"
-                    style={{ backgroundColor: '#111827', borderColor: 'rgba(255, 255, 255, 0.15)' }}
+                    className="btn btn-sm w-100 fw-bold"
+                    style={{
+                      backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                      borderColor: 'rgba(0, 242, 254, 0.3)',
+                      color: '#ffffff',
+                      fontSize: '18px',
+                      height: '46px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.4)'
+                    }}
                     onClick={() => handleDialClick(n)}
                   >
                     {n}
@@ -176,8 +192,17 @@ export const LockScreenPage: React.FC = () => {
               <div className="col-4">
                 <button
                   type="button"
-                  className="btn btn-sm w-100 py-2 fs-12 fw-bold text-light border-secondary hover-cyan"
-                  style={{ backgroundColor: '#111827', borderColor: 'rgba(255, 255, 255, 0.15)' }}
+                  className="btn btn-sm w-100 fw-bold"
+                  style={{
+                    backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                    borderColor: 'rgba(239, 68, 68, 0.35)',
+                    color: '#f87171',
+                    fontSize: '12px',
+                    height: '46px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
                   onClick={() => setPin(['', '', '', ''])}
                 >
                   CLR
@@ -186,8 +211,18 @@ export const LockScreenPage: React.FC = () => {
               <div className="col-4">
                 <button
                   type="button"
-                  className="btn btn-sm w-100 py-2 fs-14 fw-bold text-white border-secondary hover-cyan"
-                  style={{ backgroundColor: '#111827', borderColor: 'rgba(255, 255, 255, 0.15)' }}
+                  className="btn btn-sm w-100 fw-bold"
+                  style={{
+                    backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                    borderColor: 'rgba(0, 242, 254, 0.3)',
+                    color: '#ffffff',
+                    fontSize: '18px',
+                    height: '46px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.4)'
+                  }}
                   onClick={() => handleDialClick('0')}
                 >
                   0
@@ -196,8 +231,17 @@ export const LockScreenPage: React.FC = () => {
               <div className="col-4">
                 <button
                   type="button"
-                  className="btn btn-sm w-100 py-2 fs-12 text-warning border-secondary hover-cyan"
-                  style={{ backgroundColor: '#111827', borderColor: 'rgba(255, 255, 255, 0.15)' }}
+                  className="btn btn-sm w-100"
+                  style={{
+                    backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                    borderColor: 'rgba(245, 158, 11, 0.35)',
+                    color: '#fbbf24',
+                    fontSize: '16px',
+                    height: '46px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
                   onClick={handleBackspace}
                 >
                   <i className="ti ti-backspace"></i>

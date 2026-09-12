@@ -69,21 +69,21 @@ export const GraphNodeInspector: React.FC<GraphNodeInspectorProps> = ({
 
   return (
     <aside
-      className="position-absolute end-0 top-0 bottom-0 border-start border-dark d-flex flex-column animate__animated animate__fadeInRight"
+      className="position-absolute end-0 top-0 bottom-0 border-start border-secondary-subtle d-flex flex-column animate__animated animate__fadeInRight"
       style={{
         width: '350px',
-        backgroundColor: 'rgba(11, 15, 25, 0.96)',
+        backgroundColor: 'var(--theme-card-bg, #111827)',
         backdropFilter: 'blur(16px)',
         zIndex: 30,
-        boxShadow: '-4px 0 30px rgba(0, 0, 0, 0.6)',
+        boxShadow: '-4px 0 30px rgba(0, 0, 0, 0.4)',
         overflowY: 'auto'
       }}
     >
       {/* Top Header */}
-      <div className="p-3 border-bottom border-dark d-flex align-items-center justify-content-between sticky-top" style={{ backgroundColor: '#0b0f19' }}>
+      <div className="p-3 border-bottom border-secondary-subtle d-flex align-items-center justify-content-between sticky-top" style={{ backgroundColor: 'var(--theme-card-bg, #111827)' }}>
         <div className="d-flex align-items-center gap-2">
-          <h6 className="mb-0 fw-bold text-white fs-14">Inspector</h6>
-          <span className="badge bg-secondary-subtle text-light border border-secondary fs-10 text-uppercase">
+          <h6 className="mb-0 fw-bold text-body fs-14">Inspector</h6>
+          <span className="badge bg-secondary-subtle text-body border border-secondary-subtle fs-10 text-uppercase">
             {node.cluster}
           </span>
         </div>
@@ -100,23 +100,23 @@ export const GraphNodeInspector: React.FC<GraphNodeInspectorProps> = ({
       {/* Accordion Container */}
       <div className="p-3 d-flex flex-column gap-3 flex-grow-1">
         {/* Main Details Section */}
-        <div className="border border-dark rounded bg-black-subtle p-3">
+        <div className="border border-secondary-subtle rounded bg-body-secondary p-3">
           <div
             className="d-flex align-items-center justify-content-between cursor-pointer mb-2"
             onClick={() => setDetailsOpen(!detailsOpen)}
           >
-            <span className="fw-bold fs-13 text-light d-flex align-items-center gap-1">
+            <span className="fw-bold fs-13 text-body d-flex align-items-center gap-1">
               <i className="ti ti-adjustments-horizontal text-cyan"></i> Details
             </span>
             <i className={`ti ti-chevron-${detailsOpen ? 'up' : 'down'} text-muted fs-14`}></i>
           </div>
 
           {detailsOpen && (
-            <div className="mt-2 pt-2 border-top border-dark">
+            <div className="mt-2 pt-2 border-top border-secondary-subtle">
               {/* Name */}
               <div className="mb-3">
                 <span className="text-muted fs-11 text-uppercase fw-semibold d-block mb-1">Name</span>
-                <span className="fw-bold fs-14 text-white font-monospace text-break d-flex align-items-center gap-1">
+                <span className="fw-bold fs-14 text-body font-monospace text-break d-flex align-items-center gap-1">
                   <i className={getTypeIcon(node.type)}></i>
                   {node.name}
                 </span>
@@ -130,19 +130,19 @@ export const GraphNodeInspector: React.FC<GraphNodeInspectorProps> = ({
               {/* Quick Metrics */}
               <div className="row g-2 mb-3 text-center">
                 <div className="col-4">
-                  <div className="p-2 rounded bg-dark border border-secondary">
+                  <div className="p-2 rounded bg-body border border-secondary-subtle">
                     <span className="text-muted fs-10 d-block">Complexity</span>
                     <span className="fw-bold fs-12 text-info">{node.complexity}</span>
                   </div>
                 </div>
                 <div className="col-4">
-                  <div className="p-2 rounded bg-dark border border-secondary">
+                  <div className="p-2 rounded bg-body border border-secondary-subtle">
                     <span className="text-muted fs-10 d-block">LOC</span>
-                    <span className="fw-bold fs-12 text-light">{node.loc.toLocaleString()}</span>
+                    <span className="fw-bold fs-12 text-body">{node.loc.toLocaleString()}</span>
                   </div>
                 </div>
                 <div className="col-4">
-                  <div className="p-2 rounded bg-dark border border-secondary">
+                  <div className="p-2 rounded bg-body border border-secondary-subtle">
                     <span className="text-muted fs-10 d-block">Risk</span>
                     <span className={`fs-10 fw-bold ${getRiskBadgeColor(node.risk)}`}>{node.risk}</span>
                   </div>
@@ -153,19 +153,19 @@ export const GraphNodeInspector: React.FC<GraphNodeInspectorProps> = ({
               <div className="mb-3">
                 <span className="text-muted fs-11 text-uppercase fw-semibold d-block mb-2 d-flex align-items-center justify-content-between">
                   <span>Upstream Caller Forms</span>
-                  <span className="badge rounded-pill bg-dark text-cyan">{node.upstream.length}</span>
+                  <span className="badge rounded-pill bg-body border border-secondary-subtle text-cyan">{node.upstream.length}</span>
                 </span>
                 {node.upstream.length > 0 ? (
-                  <div className="d-flex flex-column gap-1">
+                  <div className="list-group list-group-flush rounded border border-secondary-subtle overflow-hidden">
                     {node.upstream.map((caller, idx) => (
                       <button
                         key={`${caller.id}-${idx}`}
                         type="button"
-                        className="btn btn-sm btn-dark text-start p-2 d-flex align-items-center justify-content-between text-truncate border border-dark hover-border-cyan"
+                        className="list-group-item list-group-item-action d-flex align-items-center justify-content-between py-2 px-2.5 bg-body border-secondary-subtle"
                         onClick={() => onSelectNode(caller.id)}
                         title={`Focus on ${caller.name}`}
                       >
-                        <span className="d-flex align-items-center gap-2 fs-12 text-light text-truncate font-monospace">
+                        <span className="d-flex align-items-center gap-2 fs-12 text-body text-truncate font-monospace">
                           <i className={getTypeIcon(caller.type)}></i>
                           {caller.name}
                         </span>
@@ -174,7 +174,7 @@ export const GraphNodeInspector: React.FC<GraphNodeInspectorProps> = ({
                     ))}
                   </div>
                 ) : (
-                  <div className="p-2 text-muted fs-11 text-center bg-dark rounded border border-dark">
+                  <div className="p-2 text-muted fs-11 text-center bg-body rounded border border-secondary-subtle">
                     Root / External Entry Point
                   </div>
                 )}
@@ -184,19 +184,19 @@ export const GraphNodeInspector: React.FC<GraphNodeInspectorProps> = ({
               <div className="mb-3">
                 <span className="text-muted fs-11 text-uppercase fw-semibold d-block mb-2 d-flex align-items-center justify-content-between">
                   <span>Downstream Dependencies</span>
-                  <span className="badge rounded-pill bg-dark text-info">{node.downstream.length}</span>
+                  <span className="badge rounded-pill bg-body border border-secondary-subtle text-info">{node.downstream.length}</span>
                 </span>
                 {node.downstream.length > 0 ? (
-                  <div className="d-flex flex-column gap-1">
+                  <div className="list-group list-group-flush rounded border border-secondary-subtle overflow-hidden">
                     {node.downstream.map((dep, idx) => (
                       <button
                         key={`${dep.id}-${idx}`}
                         type="button"
-                        className="btn btn-sm btn-dark text-start p-2 d-flex align-items-center justify-content-between text-truncate border border-dark hover-border-info"
+                        className="list-group-item list-group-item-action d-flex align-items-center justify-content-between py-2 px-2.5 bg-body border-secondary-subtle"
                         onClick={() => onSelectNode(dep.id)}
                         title={`Focus on ${dep.name}`}
                       >
-                        <span className="d-flex align-items-center gap-2 fs-12 text-light text-truncate font-monospace">
+                        <span className="d-flex align-items-center gap-2 fs-12 text-body text-truncate font-monospace">
                           <i className={getTypeIcon(dep.type)}></i>
                           {dep.name}
                         </span>
@@ -205,7 +205,7 @@ export const GraphNodeInspector: React.FC<GraphNodeInspectorProps> = ({
                     ))}
                   </div>
                 ) : (
-                  <div className="p-2 text-muted fs-11 text-center bg-dark rounded border border-dark">
+                  <div className="p-2 text-muted fs-11 text-center bg-body rounded border border-secondary-subtle">
                     Terminal Leaf Node
                   </div>
                 )}
@@ -222,7 +222,7 @@ export const GraphNodeInspector: React.FC<GraphNodeInspectorProps> = ({
                     <i className={`ti ti-chevron-${codeOpen ? 'up' : 'down'} fs-12`}></i>
                   </div>
                   {codeOpen && (
-                    <pre className="p-2 rounded bg-dark border border-secondary font-monospace fs-11 text-info mt-1 mb-0" style={{ maxHeight: '120px', overflowY: 'auto' }}>
+                    <pre className="p-2 rounded bg-body border border-secondary-subtle font-monospace fs-11 text-info mt-1 mb-0" style={{ maxHeight: '120px', overflowY: 'auto' }}>
                       {node.codeSnippet}
                     </pre>
                   )}

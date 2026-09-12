@@ -46,19 +46,19 @@ export const GraphControlSidebar: React.FC<GraphControlSidebarProps> = ({
 
   return (
     <div
-      className="position-absolute start-0 top-0 bottom-0 border-end border-dark d-flex flex-column p-3"
+      className="position-absolute start-0 top-0 bottom-0 border-end border-secondary-subtle d-flex flex-column p-3"
       style={{
         width: '280px',
-        backgroundColor: 'rgba(11, 15, 25, 0.94)',
+        backgroundColor: 'var(--theme-card-bg, #111827)',
         backdropFilter: 'blur(16px)',
         zIndex: 20,
-        boxShadow: '4px 0 25px rgba(0, 0, 0, 0.5)'
+        boxShadow: '4px 0 25px rgba(0, 0, 0, 0.4)'
       }}
     >
       {/* Header */}
-      <div className="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom border-dark">
+      <div className="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom border-secondary-subtle">
         <div>
-          <h6 className="mb-0 fw-bold text-white d-flex align-items-center gap-2">
+          <h6 className="mb-0 fw-bold text-body d-flex align-items-center gap-2">
             <i className="ti ti-chart-dots-3 text-cyan"></i> Graph Controls
           </h6>
           <small className="text-muted fs-11">
@@ -74,19 +74,19 @@ export const GraphControlSidebar: React.FC<GraphControlSidebarProps> = ({
 
       <div className="d-flex flex-column gap-3 flex-grow-1 overflow-y-auto">
         {/* 2D / 3D Switcher Toggle Card */}
-        <div className="p-2 rounded border border-dark bg-black-subtle">
+        <div className="p-2 rounded border border-secondary-subtle bg-body-secondary">
           <span className="text-muted fs-11 text-uppercase fw-semibold d-block mb-2">Rendering Mode</span>
           <div className="btn-group w-100" role="group">
             <button
               type="button"
-              className={`btn btn-sm ${!is3D ? 'btn-info fw-bold text-dark' : 'btn-dark text-muted border-dark'}`}
+              className={`btn btn-sm ${!is3D ? 'btn-info fw-bold text-dark' : 'btn-outline-secondary text-muted'}`}
               onClick={() => is3D && onToggle3D()}
             >
               <i className="ti ti-layout-grid me-1"></i> 2D Canvas
             </button>
             <button
               type="button"
-              className={`btn btn-sm ${is3D ? 'btn-info fw-bold text-dark' : 'btn-dark text-muted border-dark'}`}
+              className={`btn btn-sm ${is3D ? 'btn-info fw-bold text-dark' : 'btn-outline-secondary text-muted'}`}
               onClick={() => !is3D && onToggle3D()}
             >
               <i className="ti ti-cube me-1"></i> 3D Galaxy
@@ -100,7 +100,7 @@ export const GraphControlSidebar: React.FC<GraphControlSidebarProps> = ({
             Cluster Filter
           </label>
           <select
-            className="form-select form-select-sm bg-dark text-light border-secondary fs-12"
+            className="form-select form-select-sm bg-body text-body border-secondary-subtle fs-12"
             value={clusterFilter}
             onChange={(e) => onClusterFilterChange(e.target.value as ClusterType)}
           >
@@ -118,12 +118,12 @@ export const GraphControlSidebar: React.FC<GraphControlSidebarProps> = ({
             Node Search
           </label>
           <div className="input-group input-group-sm">
-            <span className="input-group-text bg-dark border-secondary text-muted">
+            <span className="input-group-text bg-body border-secondary-subtle text-muted">
               <i className="ti ti-search fs-12"></i>
             </span>
             <input
               type="text"
-              className="form-control bg-dark border-secondary text-light fs-12"
+              className="form-control bg-body border-secondary-subtle text-body fs-12"
               placeholder="Search Node..."
               value={searchQuery}
               onChange={(e) => onSearchQueryChange(e.target.value)}
@@ -131,7 +131,7 @@ export const GraphControlSidebar: React.FC<GraphControlSidebarProps> = ({
             {searchQuery && (
               <button
                 type="button"
-                className="btn btn-dark border-secondary text-muted"
+                className="btn btn-outline-secondary border-secondary-subtle text-muted"
                 onClick={() => onSearchQueryChange('')}
               >
                 <i className="ti ti-x fs-10"></i>
@@ -141,7 +141,7 @@ export const GraphControlSidebar: React.FC<GraphControlSidebarProps> = ({
         </div>
 
         {/* Blast Radius Sensitivity Slider */}
-        <div className="p-3 rounded border border-dark bg-black-subtle">
+        <div className="p-3 rounded border border-secondary-subtle bg-body-secondary">
           <div className="d-flex align-items-center justify-content-between mb-2">
             <span className="text-muted fs-11 text-uppercase fw-semibold">Blast Radius Sensitivity</span>
             <span className="badge rounded-pill bg-info text-dark font-monospace fw-bold fs-11">
@@ -166,7 +166,7 @@ export const GraphControlSidebar: React.FC<GraphControlSidebarProps> = ({
         </div>
 
         {/* Simulation Physics Controls */}
-        <div className="p-3 rounded border border-dark bg-black-subtle">
+        <div className="p-3 rounded border border-secondary-subtle bg-body-secondary">
           <span className="text-muted fs-11 text-uppercase fw-semibold d-block mb-2">Simulation Physics</span>
           <div className="d-flex gap-2">
             <button
@@ -189,26 +189,26 @@ export const GraphControlSidebar: React.FC<GraphControlSidebarProps> = ({
         </div>
 
         {/* Legend */}
-        <div className="mt-auto pt-3 border-top border-dark">
+        <div className="mt-auto pt-3 border-top border-secondary-subtle">
           <span className="text-muted fs-11 text-uppercase fw-semibold d-block mb-2">Node Type Legend</span>
           <div className="d-flex flex-column gap-1 fs-11">
-            <div className="d-flex align-items-center gap-2 text-light">
+            <div className="d-flex align-items-center gap-2 text-body">
               <span className="rounded-circle" style={{ width: 10, height: 10, backgroundColor: '#ef4444', boxShadow: '0 0 6px #ef4444' }}></span>
               <span>Monolith Core System</span>
             </div>
-            <div className="d-flex align-items-center gap-2 text-light">
+            <div className="d-flex align-items-center gap-2 text-body">
               <span className="rounded-circle" style={{ width: 10, height: 10, backgroundColor: '#00f2fe', boxShadow: '0 0 6px #00f2fe' }}></span>
               <span>Backend Service</span>
             </div>
-            <div className="d-flex align-items-center gap-2 text-light">
+            <div className="d-flex align-items-center gap-2 text-body">
               <span className="rounded-circle" style={{ width: 10, height: 10, backgroundColor: '#10b981', boxShadow: '0 0 6px #10b981' }}></span>
               <span>ASPX Web Form</span>
             </div>
-            <div className="d-flex align-items-center gap-2 text-light">
+            <div className="d-flex align-items-center gap-2 text-body">
               <span className="rounded-circle" style={{ width: 10, height: 10, backgroundColor: '#3b82f6', boxShadow: '0 0 6px #3b82f6' }}></span>
               <span>SQL Database Table</span>
             </div>
-            <div className="d-flex align-items-center gap-2 text-light">
+            <div className="d-flex align-items-center gap-2 text-body">
               <span className="rounded-circle" style={{ width: 10, height: 10, backgroundColor: '#f59e0b', boxShadow: '0 0 6px #f59e0b' }}></span>
               <span>Worker / Gateway</span>
             </div>

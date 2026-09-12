@@ -55,6 +55,16 @@ html[data-bs-theme="dark"] {
   --theme-emphasis-color: #f8fafc;
   --theme-secondary-color: #94a3b8;
   --theme-tertiary-color: #64748b;
+  --theme-card-bg: #111827;
+  --theme-card-title-color: #f8fafc;
+  --theme-border-color: rgba(255, 255, 255, 0.08);
+
+  /* Native Paces Side Navigation Tokens */
+  --theme-sidenav-item-active-color: #00f2fe;
+  --theme-sidenav-item-active-bg: rgba(0, 242, 254, 0.14);
+  --theme-sidenav-item-hover-color: #00f2fe;
+  --theme-sidenav-item-hover-bg: rgba(0, 242, 254, 0.08);
+
   --bs-body-color: #cbd5e1;
   --bs-body-bg: #0b0f19;
   --bs-emphasis-color: #f8fafc;
@@ -77,6 +87,16 @@ html[data-bs-theme="light"] {
   --theme-emphasis-color: #0f172a;
   --theme-secondary-color: #64748b;
   --theme-tertiary-color: #94a3b8;
+  --theme-card-bg: #ffffff;
+  --theme-card-title-color: #0f172a;
+  --theme-border-color: rgba(0, 0, 0, 0.08);
+
+  /* Native Paces Side Navigation Tokens */
+  --theme-sidenav-item-active-color: #2563eb;
+  --theme-sidenav-item-active-bg: rgba(37, 99, 235, 0.12);
+  --theme-sidenav-item-hover-color: #2563eb;
+  --theme-sidenav-item-hover-bg: rgba(37, 99, 235, 0.06);
+
   --bs-body-color: #334155;
   --bs-body-bg: #f4f6f9;
   --bs-emphasis-color: #0f172a;
@@ -114,13 +134,23 @@ html[data-bs-theme="light"] p.text-muted {
 }
 
 html[data-bs-theme="dark"] .card {
-  background-color: var(--am-card-bg) !important;
-  border-color: var(--am-border) !important;
+  background-color: var(--theme-card-bg) !important;
+  border-color: var(--theme-border-color) !important;
 }
 
 html[data-bs-theme="dark"] .card-header {
-  background-color: var(--am-card-header-bg) !important;
-  border-bottom-color: var(--am-border) !important;
+  background-color: transparent !important;
+  border-bottom-color: var(--theme-border-color) !important;
+}
+
+html[data-bs-theme="dark"] .card .card-title,
+html[data-bs-theme="dark"] h1,
+html[data-bs-theme="dark"] h2,
+html[data-bs-theme="dark"] h3,
+html[data-bs-theme="dark"] h4,
+html[data-bs-theme="dark"] h5,
+html[data-bs-theme="dark"] h6 {
+  color: var(--theme-emphasis-color);
 }
 
 html[data-bs-theme="dark"] .app-topbar {
@@ -140,10 +170,25 @@ html[data-bs-theme="light"] .app-topbar {
   border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
 }
 
-/* === SIDEBAR NAV HOVER ANIMATION & PARITY === */
-.side-nav .side-nav-item > .side-nav-link {
-  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+/* === AUTHENTIC PACES SIDEBAR NAV ANIMATION FLOW === */
+.side-nav .side-nav-item .side-nav-link {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 50px;
+}
+
+html[data-bs-theme="dark"] .side-nav .side-nav-item.active > .side-nav-link {
+  background: linear-gradient(90deg, rgba(0, 242, 254, 0.18) 0%, rgba(59, 130, 246, 0.08) 100%) !important;
+  color: #00f2fe !important;
+  box-shadow: 0 0 16px rgba(0, 242, 254, 0.25);
+  transform: translateX(4px);
+  font-weight: 600;
+}
+
+html[data-bs-theme="dark"] .side-nav .side-nav-item.active > .side-nav-link .menu-icon i {
+  color: #00f2fe !important;
+  filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.6));
+  transform: scale(1.15);
+  transition: all 0.25s ease;
 }
 
 html[data-bs-theme="dark"] .side-nav .side-nav-item:hover > .side-nav-link {
@@ -158,9 +203,10 @@ html[data-bs-theme="dark"] .side-nav .side-nav-item:hover > .side-nav-link .menu
   transition: transform 0.2s ease;
 }
 
-html[data-bs-theme="dark"] .side-nav .side-nav-item.active > .side-nav-link {
-  background-color: rgba(0, 242, 254, 0.14) !important;
-  color: #00f2fe !important;
+html[data-bs-theme="light"] .side-nav .side-nav-item.active > .side-nav-link {
+  background-color: rgba(37, 99, 235, 0.12) !important;
+  color: #2563eb !important;
+  transform: translateX(4px);
   font-weight: 600;
 }
 
@@ -174,12 +220,6 @@ html[data-bs-theme="light"] .side-nav .side-nav-item:hover > .side-nav-link .men
   color: #2563eb !important;
   transform: scale(1.15);
   transition: transform 0.2s ease;
-}
-
-html[data-bs-theme="light"] .side-nav .side-nav-item.active > .side-nav-link {
-  background-color: rgba(59, 130, 246, 0.12) !important;
-  color: #2563eb !important;
-  font-weight: 600;
 }
 
 /* Brand Colors & Utilities */
