@@ -97,9 +97,15 @@ export const Topbar: React.FC = () => {
     navigate(path);
   };
 
-  const handleBellClick = () => {
+  const handleBellClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     playCyberChime();
-    setIsNotifOpen(!isNotifOpen);
+    setIsDropdownOpen(false);
+    setIsAppsGridOpen(false);
+    setIsLangOpen(false);
+    setIsSearchFocused(false);
+    setIsNotifOpen(prev => !prev);
   };
 
   const handleLockScreen = () => {
@@ -297,8 +303,15 @@ export const Topbar: React.FC = () => {
           <div className="topbar-item position-relative" id="apps-dropdown-grid" ref={appsGridRef}>
             <button 
               type="button" 
-              className="topbar-link"
-              onClick={() => setIsAppsGridOpen(!isAppsGridOpen)}
+              className="topbar-link dropdown-toggle drop-arrow-none"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsNotifOpen(false);
+                setIsDropdownOpen(false);
+                setIsLangOpen(false);
+                setIsAppsGridOpen(prev => !prev);
+              }}
               title="ArcMorph Tool Suite"
             >
               <i className="ti ti-apps topbar-link-icon fs-20"></i>
@@ -357,45 +370,56 @@ export const Topbar: React.FC = () => {
           <div className="topbar-item position-relative" id="notification-dropdown-people" ref={notifDropdownRef}>
             <button 
               type="button" 
-              className="topbar-link position-relative"
+              className="topbar-link dropdown-toggle drop-arrow-none position-relative"
               onClick={handleBellClick}
               title="Operational Alerts & Feedback"
             >
               <i className="ti ti-bell topbar-link-icon fs-20"></i>
-              <span className="soundwave-ripple position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style={{ fontSize: '10px' }}>
+              <span 
+                className="badge rounded-pill bg-danger position-absolute" 
+                style={{ top: '4px', right: '4px', fontSize: '9px', padding: '2px 5px', lineHeight: 1 }}
+              >
                 5
               </span>
             </button>
             {isNotifOpen && (
               <div 
                 className="dropdown-menu dropdown-menu-end show p-0 shadow-lg border rounded overflow-hidden"
-                style={{ position: 'absolute', top: 'calc(100% + 16px)', right: 0, width: '340px', zIndex: 1050 }}
+                style={{ position: 'absolute', top: 'calc(100% + 14px)', right: 0, width: '340px', zIndex: 1050 }}
               >
                 <div className="d-flex justify-content-between align-items-center px-3 py-2.5 border-bottom border-secondary-subtle bg-body-tertiary">
-                  <h6 className="m-0 fw-bold text-body fs-14">Notifications</h6>
-                  <span className="badge bg-success-subtle text-success border border-success-subtle fw-semibold px-2 py-1 fs-11">07 Notifications</span>
+                  <h6 className="m-0 fw-bold text-body fs-13">Notifications</h6>
+                  <span className="badge bg-success-subtle text-success border border-success-subtle fw-semibold px-2 py-0.5 fs-11">5 New</span>
                 </div>
 
-                <div className="list-group list-group-flush" style={{ maxHeight: '320px', overflowY: 'auto' }}>
-                  <div className="list-group-item list-group-item-action d-flex align-items-start gap-3 py-2.5 px-3 border-bottom border-secondary-subtle">
+                <div className="list-group list-group-flush" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                  <Link 
+                    to="/notifications" 
+                    onClick={() => setIsNotifOpen(false)} 
+                    className="list-group-item list-group-item-action d-flex align-items-start gap-3 py-2.5 px-3 border-bottom border-secondary-subtle text-decoration-none"
+                  >
                     <div className="position-relative flex-shrink-0">
-                      <img src="/assets/images/users/avatar-1.jpg" alt="Emily" className="rounded-circle" style={{ width: 38, height: 38, objectFit: 'cover' }} onError={e => { (e.target as HTMLElement).style.display = 'none'; }} />
-                      <span className="position-absolute bottom-0 end-0 badge rounded-circle bg-success p-1 d-flex align-items-center justify-content-center" style={{ width: 16, height: 16 }}>
+                      <img src="/assets/images/users/avatar-1.jpg" alt="Emily" className="rounded-circle" style={{ width: 36, height: 36, objectFit: 'cover' }} onError={e => { (e.target as HTMLElement).style.display = 'none'; }} />
+                      <span className="position-absolute bottom-0 end-0 badge rounded-circle bg-success p-1 d-flex align-items-center justify-content-center" style={{ width: 14, height: 14 }}>
                         <i className="ti ti-bell fs-10 text-white"></i>
                       </span>
                     </div>
                     <div className="flex-grow-1">
                       <div className="fs-12 text-body">
-                        <strong>Emily Johnson</strong> <span className="text-muted">commented on a task in</span> <strong>Design Sprint</strong>
+                        <strong>Emily Johnson</strong> <span className="text-muted">commented on</span> <strong>Design Sprint</strong>
                       </div>
                       <small className="text-muted fs-11">12 minutes ago</small>
                     </div>
-                  </div>
+                  </Link>
 
-                  <div className="list-group-item list-group-item-action d-flex align-items-start gap-3 py-2.5 px-3 border-bottom border-secondary-subtle">
+                  <Link 
+                    to="/notifications" 
+                    onClick={() => setIsNotifOpen(false)} 
+                    className="list-group-item list-group-item-action d-flex align-items-start gap-3 py-2.5 px-3 border-bottom border-secondary-subtle text-decoration-none"
+                  >
                     <div className="position-relative flex-shrink-0">
-                      <img src="/assets/images/users/avatar-2.jpg" alt="Michael" className="rounded-circle" style={{ width: 38, height: 38, objectFit: 'cover' }} onError={e => { (e.target as HTMLElement).style.display = 'none'; }} />
-                      <span className="position-absolute bottom-0 end-0 badge rounded-circle bg-info p-1 d-flex align-items-center justify-content-center" style={{ width: 16, height: 16 }}>
+                      <img src="/assets/images/users/avatar-2.jpg" alt="Michael" className="rounded-circle" style={{ width: 36, height: 36, objectFit: 'cover' }} onError={e => { (e.target as HTMLElement).style.display = 'none'; }} />
+                      <span className="position-absolute bottom-0 end-0 badge rounded-circle bg-info p-1 d-flex align-items-center justify-content-center" style={{ width: 14, height: 14 }}>
                         <i className="ti ti-cloud-upload fs-10 text-white"></i>
                       </span>
                     </div>
@@ -405,14 +429,18 @@ export const Topbar: React.FC = () => {
                       </div>
                       <small className="text-muted fs-11">25 minutes ago</small>
                     </div>
-                  </div>
+                  </Link>
 
-                  <div className="list-group-item list-group-item-action d-flex align-items-start gap-3 py-2.5 px-3 border-bottom border-secondary-subtle">
+                  <Link 
+                    to="/notifications" 
+                    onClick={() => setIsNotifOpen(false)} 
+                    className="list-group-item list-group-item-action d-flex align-items-start gap-3 py-2.5 px-3 border-bottom border-secondary-subtle text-decoration-none"
+                  >
                     <div className="position-relative flex-shrink-0">
-                      <div className="rounded-circle bg-body-tertiary border border-secondary-subtle d-flex align-items-center justify-content-center" style={{ width: 38, height: 38 }}>
-                        <i className="ti ti-database fs-18 text-muted"></i>
+                      <div className="rounded-circle bg-body-tertiary border border-secondary-subtle d-flex align-items-center justify-content-center" style={{ width: 36, height: 36 }}>
+                        <i className="ti ti-database fs-16 text-warning"></i>
                       </div>
-                      <span className="position-absolute bottom-0 end-0 badge rounded-circle bg-danger p-1 d-flex align-items-center justify-content-center" style={{ width: 16, height: 16 }}>
+                      <span className="position-absolute bottom-0 end-0 badge rounded-circle bg-danger p-1 d-flex align-items-center justify-content-center" style={{ width: 14, height: 14 }}>
                         <i className="ti ti-alert-circle fs-10 text-white"></i>
                       </span>
                     </div>
@@ -422,12 +450,16 @@ export const Topbar: React.FC = () => {
                       </div>
                       <small className="text-muted fs-11">Just now</small>
                     </div>
-                  </div>
+                  </Link>
 
-                  <div className="list-group-item list-group-item-action d-flex align-items-start gap-3 py-2.5 px-3 border-bottom border-secondary-subtle">
+                  <Link 
+                    to="/notifications" 
+                    onClick={() => setIsNotifOpen(false)} 
+                    className="list-group-item list-group-item-action d-flex align-items-start gap-3 py-2.5 px-3 border-bottom border-secondary-subtle text-decoration-none"
+                  >
                     <div className="position-relative flex-shrink-0">
-                      <img src="/assets/images/users/avatar-3.jpg" alt="Sophia" className="rounded-circle" style={{ width: 38, height: 38, objectFit: 'cover' }} onError={e => { (e.target as HTMLElement).style.display = 'none'; }} />
-                      <span className="position-absolute bottom-0 end-0 badge rounded-circle bg-warning p-1 d-flex align-items-center justify-content-center" style={{ width: 16, height: 16 }}>
+                      <img src="/assets/images/users/avatar-3.jpg" alt="Sophia" className="rounded-circle" style={{ width: 36, height: 36, objectFit: 'cover' }} onError={e => { (e.target as HTMLElement).style.display = 'none'; }} />
+                      <span className="position-absolute bottom-0 end-0 badge rounded-circle bg-warning p-1 d-flex align-items-center justify-content-center" style={{ width: 14, height: 14 }}>
                         <i className="ti ti-alert-triangle fs-10 text-dark"></i>
                       </span>
                     </div>
@@ -437,16 +469,17 @@ export const Topbar: React.FC = () => {
                       </div>
                       <small className="text-muted fs-11">45 minutes ago</small>
                     </div>
-                  </div>
+                  </Link>
                 </div>
 
                 <div className="p-2.5 text-center border-top border-secondary-subtle bg-body-tertiary">
                   <Link
                     to="/notifications"
-                    className="fw-bold text-decoration-underline text-body fs-13 d-inline-block hover-cyan"
+                    className="btn btn-sm btn-link text-primary fw-semibold fs-12 w-100 text-decoration-none d-flex align-items-center justify-content-center gap-1 hover-cyan py-1"
                     onClick={() => setIsNotifOpen(false)}
                   >
-                    Read All Messages
+                    <span>View All Notifications</span>
+                    <i className="ti ti-arrow-right fs-12"></i>
                   </Link>
                 </div>
               </div>
@@ -467,8 +500,15 @@ export const Topbar: React.FC = () => {
           <div className="topbar-item position-relative" id="language-selector-rounded" ref={langDropdownRef}>
             <button 
               type="button" 
-              className="topbar-link d-flex align-items-center gap-1"
-              onClick={() => setIsLangOpen(!isLangOpen)}
+              className="topbar-link dropdown-toggle drop-arrow-none d-flex align-items-center gap-1"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsNotifOpen(false);
+                setIsDropdownOpen(false);
+                setIsAppsGridOpen(false);
+                setIsLangOpen(prev => !prev);
+              }}
               title="Select Interface Language"
             >
               <span className="fw-bold fs-12 text-cyan font-monospace">{currentLang}</span>
@@ -476,7 +516,7 @@ export const Topbar: React.FC = () => {
             {isLangOpen && (
               <div 
                 className="dropdown-menu dropdown-menu-end show shadow-lg border rounded p-1"
-                style={{ position: 'absolute', top: 'calc(100% + 16px)', right: 0, zIndex: 1050 }}
+                style={{ position: 'absolute', top: 'calc(100% + 14px)', right: 0, zIndex: 1050 }}
               >
                 <button
                   className={`dropdown-item d-flex align-items-center gap-2 fs-12 ${currentLang === 'EN' ? 'text-cyan fw-bold' : 'text-body'}`}
@@ -505,7 +545,14 @@ export const Topbar: React.FC = () => {
               type="button" 
               id="topbar-user-dropdown"
               className="topbar-link dropdown-toggle drop-arrow-none px-2 d-flex align-items-center gap-2"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsNotifOpen(false);
+                setIsAppsGridOpen(false);
+                setIsLangOpen(false);
+                setIsDropdownOpen(prev => !prev);
+              }}
             >
               <img
                 src={user?.avatar || "/assets/images/users/naimul_islam.jpg"}

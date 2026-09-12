@@ -323,7 +323,7 @@ export const useBootstrapEffects = () => {
 
 
       // Close open dropdowns when clicking anywhere outside
-      if (!target.closest('.dropdown-menu') && !target.closest('[data-bs-toggle="dropdown"], .dropdown-toggle')) {
+      if (!target.closest('.dropdown-menu') && !target.closest('[data-bs-toggle="dropdown"], .dropdown-toggle, .topbar-item, .topbar-link')) {
         document.querySelectorAll('.dropdown-menu.show').forEach((m) => {
           m.classList.remove('show');
           const p = m.closest('.dropdown, .btn-group');
