@@ -1,0 +1,36 @@
+﻿services:
+  bornomala_backend:
+    build:
+      context: ../bornomala_api
+      dockerfile: Dockerfile
+    image: bornomala:api
+    container_name: project_bornomala_api
+    ports:
+      - "5001:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=bornomala-mssql-2022,1433;Database=EducationDB_Legacy;User Id=sa;Password=Bornomala@Secure2026;TrustServerCertificate=True;MultipleActiveResultSets=True;
+    networks:
+      - bornomala_net
+      - bornomala_modernized_bornomala-net
+    restart: unless-stopped
+
+  bornomala_web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: bornomala:web
+    container_name: project_bornomala
+    ports:
+      - "3006:80"
+    depends_on:
+      - bornomala_backend
+    networks:
+      - bornomala_net
+    restart: unless-stopped
+
+networks:
+  bornomala_net:
+    driver: bridge
+  bornomala_modernized_bornomala-net:
+    external: true
