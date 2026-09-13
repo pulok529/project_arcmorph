@@ -19,19 +19,16 @@ interface ConsoleEntry {
   timestamp: string;
 }
 
-const INITIAL_STAGED_FILES: StagedFile[] = [
-  { name: 'StudentAdmission.aspx', size: '34.2 KB', type: 'ASPX View', status: 'READY' },
-  { name: 'StudentAdmission.aspx.cs', size: '58.9 KB', type: 'C# Code-Behind', status: 'READY' },
-  { name: 'dbo.tblStudentInfo.sql', size: '12.4 KB', type: 'MSSQL DDL', status: 'READY' },
-  { name: 'dbo.tblFeesCollection.sql', size: '18.1 KB', type: 'MSSQL DDL', status: 'READY' },
-  { name: 'FeesCollection.aspx', size: '28.6 KB', type: 'ASPX View', status: 'READY' },
-  { name: 'AttendanceWorker.cs', size: '42.0 KB', type: 'C# Service', status: 'READY' }
-];
+const INITIAL_STAGED_FILES: StagedFile[] = [];
 
 export const TerminalPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const projectId = searchParams.get('project') || 'proj_1788642109465';
+  const rawProjectId = searchParams.get('project');
+  const isAuto = searchParams.get('auto') === 'true';
+
+  const [currentProject, setCurrentProject] = useState<any>(null);
+  const projectId = rawProjectId || (currentProject ? currentProject.id : 'clean_workspace');
 
   const { activeTasks, startMorphPipeline, pauseSubagent, stopSubagent } = useTasks();
   const { models, activeModelId } = useModels();
@@ -44,13 +41,13 @@ export const TerminalPage: React.FC = () => {
     {
       id: 'init_1',
       type: 'system',
-      text: '========================================================================\n  ARCMORPH REVERSE-ENGINEERING & CODE CONVERSION CLI (v2.4.0)\n  Host: core-engine | Context: .NET 9 Clean Architecture + React 19\n  Type "help" or "docs" for command syntax manual.\n========================================================================',
+      text: '========================================================================\n  ARCMORPH REVERSE-ENGINEERING & CODE CONVERSION CLI (v2.4.0)\n  Host: core-engine | Context: Multi-Agent Analysis Pipeline\n  Type "help" or "docs" for command syntax manual.\n========================================================================',
       timestamp: new Date().toLocaleTimeString()
     },
     {
       id: 'init_2',
       type: 'output',
-      text: 'Workspace initialized with 6 staged files. Use "upload" to add files, or "* morph" to begin conversion.',
+      text: 'Pristine clean slate workspace ready. No active project loaded.\nUpload a project archive (.zip / .rar / .bak) via Quick Ingestion or type "upload" to begin analysis.',
       timestamp: new Date().toLocaleTimeString()
     }
   ]);
@@ -95,6 +92,55 @@ export const TerminalPage: React.FC = () => {
     }, 1200);
     return () => clearInterval(interval);
   }, []);
+
+  // Hydrate project assets if project is loaded or incoming from upload
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('ARCMORPH_PROJECTS');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const match = rawProjectId ? parsed.find((p: any) => p.id === rawProjectId) : parsed[0];
+          if (match) {
+            setCurrentProject(match);
+            const archiveName = match.archive_name || `${match.name.replace(/\s+/g, '_')}.zip`;
+            const files: StagedFile[] = [
+              { name: archiveName, size: 'Compressed Archive', type: 'Uploaded Package', status: 'READY' },
+              { name: 'CoreApplication.sln', size: 'Solution Spec', type: '.NET Solution', status: 'READY' },
+              { name: 'DatabaseSchema.bak', size: 'Database Dump', type: 'MSSQL Backup', status: 'READY' }
+            ];
+            setStagedFiles(files);
+            setConsoleEntries([
+              {
+                id: 'init_1',
+                type: 'system',
+                text: '========================================================================\n  ARCMORPH REVERSE-ENGINEERING & CODE CONVERSION CLI (v2.4.0)\n  Host: core-engine | Context: Multi-Agent Analysis Pipeline\n  Type "help" or "docs" for command syntax manual.\n========================================================================',
+                timestamp: new Date().toLocaleTimeString()
+              },
+              {
+                id: 'init_2',
+                type: 'success',
+                text: `Project loaded: "${match.name}" (ID: ${match.id}). ${files.length} package assets staged.\nReady to analyze. Type "* morph" or click "Run '* morph'" to launch multi-agent extraction.`,
+                timestamp: new Date().toLocaleTimeString()
+              }
+            ]);
+
+            if (isAuto) {
+              setTimeout(() => {
+                startMorphPipeline(files.map(f => f.name));
+                appendEntry('system', `[AUTO-INGESTION] Automatically started reverse-engineering analysis for "${match.name}".`);
+              }, 500);
+            }
+            return;
+          }
+        }
+      }
+    } catch {
+      // fallback
+    }
+
+    setStagedFiles([]);
+  }, [rawProjectId, isAuto]);
 
   // Auto-scroll console
   useEffect(() => {

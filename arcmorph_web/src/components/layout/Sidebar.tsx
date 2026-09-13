@@ -50,6 +50,12 @@ export const menuData: MenuCategory[] = [
         title: 'MorphHub',
         icon: 'ti-folder-check',
         path: '/morph-hub'
+      },
+      {
+        title: 'AI Multi-Agent Studio',
+        icon: 'ti-brain',
+        path: '/ai-studio',
+        badge: { text: 'AutoGen/RAG', variant: 'info' }
       }
     ]
   }

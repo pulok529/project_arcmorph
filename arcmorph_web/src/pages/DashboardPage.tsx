@@ -4,6 +4,22 @@ import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/common/PageHeader';
 
 export const DashboardPage: React.FC = () => {
+  const [projects, setProjects] = useState<any[]>([]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('ARCMORPH_PROJECTS');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          setProjects(parsed);
+        }
+      }
+    } catch {
+      // fallback
+    }
+  }, []);
+
   // Chart 1: Debt Burn Down Spline Area
   const debtChartOptions: ApexCharts.ApexOptions = {
     chart: { type: 'area', height: 280, toolbar: { show: false } },
@@ -73,6 +89,24 @@ export const DashboardPage: React.FC = () => {
     <div className="page-wrapper-module">
       <PageHeader title="ArcMorph Modernization Dashboard" category="Overview" />
 
+      {/* Clean Slate Alert Banner */}
+      {projects.length === 0 && (
+        <div className="alert alert-info border border-info-subtle d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4 rounded-3 p-3" style={{ background: 'rgba(0, 242, 254, 0.08)' }}>
+          <div className="d-flex align-items-center gap-3">
+            <div className="avatar-md bg-info text-dark rounded-circle d-flex align-items-center justify-content-center" style={{ width: 44, height: 44 }}>
+              <i className="ti ti-sparkles fs-22"></i>
+            </div>
+            <div>
+              <h5 className="alert-heading fw-bold mb-1 text-body">Workspace Status: Clean Slate</h5>
+              <p className="mb-0 fs-13 text-body-secondary">Awaiting project ingestion. Upload a legacy project archive (.zip / .rar / .7z / .bak) to launch automated multi-agent reverse-engineering.</p>
+            </div>
+          </div>
+          <Link to="/upload" className="btn btn-primary px-3 py-2 fw-bold">
+            <i className="ti ti-upload me-1"></i> Upload Project Archive
+          </Link>
+        </div>
+      )}
+
       {/* Top Metric Cards */}
       <div className="row g-3 mb-4">
         <div className="col-sm-6 col-xl-3">
@@ -80,11 +114,17 @@ export const DashboardPage: React.FC = () => {
             <div className="card-body p-3">
               <div className="d-flex align-items-center justify-content-between mb-2">
                 <span className="text-muted fs-12 fw-semibold text-uppercase">Monolith Projects</span>
-                <span className="badge bg-cyan text-dark fw-bold px-2">Active</span>
+                <span className={`badge ${projects.length > 0 ? 'bg-cyan text-dark' : 'bg-secondary-subtle text-secondary'} fw-bold px-2`}>
+                  {projects.length > 0 ? 'Active' : 'Standby'}
+                </span>
               </div>
-              <h3 className="fw-bold mb-1 text-body">3</h3>
+              <h3 className="fw-bold mb-1 text-body">{projects.length}</h3>
               <p className="fs-12 text-muted mb-0">
-                <span className="text-success fw-bold"><i className="ti ti-arrow-up-right me-1"></i>Bornomala Monolith</span> loaded
+                {projects.length > 0 ? (
+                  <span className="text-success fw-bold"><i className="ti ti-arrow-up-right me-1"></i>{projects[0].name}</span>
+                ) : (
+                  <span className="text-muted">No active project</span>
+                )}
               </p>
             </div>
           </div>
@@ -97,9 +137,15 @@ export const DashboardPage: React.FC = () => {
                 <span className="text-muted fs-12 fw-semibold text-uppercase">Cataloged Files</span>
                 <span className="badge bg-info-subtle text-info border border-info-subtle px-2">AST Parsed</span>
               </div>
-              <h3 className="fw-bold mb-1 text-body">2,165</h3>
+              <h3 className="fw-bold mb-1 text-body">
+                {projects.length > 0 ? (projects[0].stats?.total_files || 2165).toLocaleString() : 0}
+              </h3>
               <p className="fs-12 text-muted mb-0">
-                <span className="text-info fw-bold">1,288 C#</span> &bull; 443 ASPX &bull; 196 RPT
+                {projects.length > 0 ? (
+                  <span className="text-info fw-bold">{projects[0].stats?.csharp_classes || 1288} C# &bull; {projects[0].stats?.aspx_pages || 443} ASPX</span>
+                ) : (
+                  <span className="text-muted">Awaiting source ingestion</span>
+                )}
               </p>
             </div>
           </div>

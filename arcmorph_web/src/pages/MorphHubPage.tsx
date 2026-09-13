@@ -8,32 +8,13 @@ export const MorphHubPage: React.FC = () => {
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Initialize with benchmark dataset and any local uploads
+  // Initialize projects strictly from local storage (clean slate default)
   useEffect(() => {
-    const defaultProjects: ProjectSummary[] = [
-      {
-        id: 'proj_1788642109465',
-        name: 'Bornomala School ERP Monolith',
-        archive_name: 'Bornomala_Legacy_Release_v4.2.zip',
-        created_at: '2026-09-08T14:32:00.000Z',
-        status: 'COMPLETED',
-        tech_stack: ['.NET Framework 4.0', 'ASP.NET WebForms', 'MS SQL 2019', 'Crystal Reports', 'ADO.NET'],
-        stats: {
-          total_files: 2165,
-          aspx_pages: 443,
-          csharp_classes: 1288,
-          reports: 196,
-          tables: 68
-        },
-        domain_summary: 'Comprehensive K-12 education enterprise ERP covering admissions, multi-session academics, double-entry finance, student records, and Crystal Reports engine.'
-      }
-    ];
-
     try {
       const stored = localStorage.getItem('ARCMORPH_PROJECTS');
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
           setProjects(parsed);
           setLoading(false);
           return;
@@ -43,9 +24,40 @@ export const MorphHubPage: React.FC = () => {
       // fallback
     }
 
-    setProjects(defaultProjects);
+    // Default: Clean slate (empty projects array)
+    setProjects([]);
     setLoading(false);
   }, []);
+
+  const handleClearAll = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!window.confirm('Reset workspace to clean slate? All cached project analysis will be cleared.')) return;
+    setProjects([]);
+    localStorage.removeItem('ARCMORPH_PROJECTS');
+  };
+
+  const handleLoadSample = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const benchmark: ProjectSummary = {
+      id: 'proj_1788642109465',
+      name: 'Bornomala School ERP Monolith',
+      archive_name: 'Bornomala_Legacy_Release_v4.2.zip',
+      created_at: '2026-09-08T14:32:00.000Z',
+      status: 'COMPLETED',
+      tech_stack: ['.NET Framework 4.0', 'ASP.NET WebForms', 'MS SQL 2019', 'Crystal Reports', 'ADO.NET'],
+      stats: {
+        total_files: 2165,
+        aspx_pages: 443,
+        csharp_classes: 1288,
+        reports: 196,
+        tables: 68
+      },
+      domain_summary: 'Comprehensive K-12 education enterprise ERP covering admissions, multi-session academics, double-entry finance, student records, and Crystal Reports engine.'
+    };
+    const updated = [benchmark];
+    setProjects(updated);
+    localStorage.setItem('ARCMORPH_PROJECTS', JSON.stringify(updated));
+  };
 
   const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -74,6 +86,11 @@ export const MorphHubPage: React.FC = () => {
           <p className="text-body-secondary fs-13 mb-0">Browse, inspect, and analyze ingested legacy systems and target blueprints</p>
         </div>
         <div className="d-flex align-items-center gap-2">
+          {projects.length > 0 && (
+            <button onClick={handleClearAll} className="btn btn-outline-danger rounded-pill px-3 fs-13">
+              <i className="ti ti-trash me-1"></i> Reset Clean Slate
+            </button>
+          )}
           <Link to="/upload" className="btn btn-outline-info rounded-pill px-3 fs-13">
             <i className="ti ti-plus me-1"></i> Quick Ingestion
           </Link>
@@ -89,11 +106,16 @@ export const MorphHubPage: React.FC = () => {
         <div className="card text-center py-5 border border-dashed border-secondary-subtle shadow-sm">
           <div className="card-body">
             <i className="ti ti-folder-off fs-48 text-body-secondary mb-3 d-block"></i>
-            <h5 className="text-body fw-bold">No Projects Found</h5>
-            <p className="text-body-secondary fs-13 mb-3">Upload a legacy archive (.zip/.rar/.7z) or database backup to begin</p>
-            <Link to="/upload" className="btn btn-primary px-4">
-              <i className="ti ti-upload me-1"></i> Upload First Project
-            </Link>
+            <h5 className="text-body fw-bold">Clean Slate: No Projects Loaded</h5>
+            <p className="text-body-secondary fs-13 mb-4">Upload a legacy project archive (.zip / .rar / .7z) or database backup (.bak) to begin automated reverse-engineering.</p>
+            <div className="d-flex align-items-center justify-content-center gap-3">
+              <Link to="/upload" className="btn btn-primary px-4 py-2">
+                <i className="ti ti-upload me-1"></i> Upload Project Archive
+              </Link>
+              <button onClick={handleLoadSample} className="btn btn-outline-secondary px-3 py-2 fs-13">
+                <i className="ti ti-database-import me-1"></i> Load Sample Benchmark
+              </button>
+            </div>
           </div>
         </div>
       ) : (
