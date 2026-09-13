@@ -28,21 +28,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('Failed to parse saved user', e);
       }
     }
-    // Default logged-in user: MD Nazrul Islam (Super Admin)
-    return {
-      id: 'usr_1',
-      username: 'admin',
-      password: 'password123',
-      fullName: 'MD Nazrul Islam',
-      email: 'nazrul.islam@bornomala.edu.bd',
-      phone: '+880 1760 150555',
-      branch: 'Main Campus (Dania)',
-      roleId: 'role_super_admin',
-      status: 'active',
-      legacyId: 'LEGACY_MEMBER_001',
-      createdAt: '2024-01-10',
-      lastLogin: 'Just now'
-    };
+    // User must log in first to enter academic console
+    return null;
   });
 
   const [activeBranch, setActiveBranch] = useState<string>(() => {
