@@ -1,6 +1,0 @@
-@Bornomala.Rbac.Api_HostAddress = http://localhost:5166
-
-GET {{Bornomala.Rbac.Api_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

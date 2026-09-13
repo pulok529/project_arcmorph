@@ -1,4 +1,4 @@
-﻿# Dependencies
+# Dependencies
 node_modules/
 .pnp
 .pnp.js
@@ -34,3 +34,49 @@ lerna-debug.log*
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# ==============================================================================
+# ArcMorph Generated Projects & Workspaces Isolation (NEVER UPLOAD TO GITHUB)
+# GitHub must ONLY contain the core ArcMorph tool source code.
+# ==============================================================================
+archive/
+archives/
+generated_projects/
+generated/
+workspaces/
+workspace/
+uploads/
+uploaded_archives/
+ocr_vault/
+saved_sessions/
+temp_quarantine/
+temp_media/
+.user_uploaded/
+.tempmediaStorage/
+
+# Specific project output prefixes
+bornomala_*
+bornomala/
+
+# Data dumps, databases, archives, and binaries
+*.bak
+*.mdf
+*.ldf
+*.sql
+*.csv
+*.tsv
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.iso
+*.parquet
+*.sqlite
+*.db
+
+# Intermediate AST / extraction caches
+*ProjectProfile*.json
+*_ProjectProfile.json
+extracted_metadata.json
+Stored.detail.md
